@@ -1,0 +1,357 @@
+import React, { useState } from 'react';
+import { PersonData, NumerologyCalculation, NameAnalysis, BabyNameSuggestion } from './types/numerology';
+import { Header } from './components/Header';
+import { PersonalInfoForm } from './components/PersonalInfoForm';
+import { NumerologyResults } from './components/NumerologyResults';
+import { NameAnalysis as NameAnalysisComponent } from './components/NameAnalysis';
+import { BabyNameSuggestions } from './components/BabyNameSuggestions';
+import { AINameGenerator } from './components/AINameGenerator';
+import { calculateDriver, calculateConductor, calculateKua, createLoshuGrid, analyzePlanes } from './utils/numerologyCalculations';
+import { getCompatibility } from './utils/compatibility';
+import { analyzeNameSpelling, generateNameCorrectionsWithParents, generateCorrectedNamesWithCompleteFormula } from './utils/nameCorrection';
+import { generateBabyNameSuggestions } from './utils/babyNames';
+import { User, Baby, Calculator } from 'lucide-react';
+
+type AnalysisType = 'numerology' | 'babynames' | null;
+type CurrentStep = 'choice' | 'form' | 'results';
+
+function App() {
+  const [currentStep, setCurrentStep] = useState<CurrentStep>('choice');
+  const [analysisType, setAnalysisType] = useState<AnalysisType>(null);
+  const [personData, setPersonData] = useState<PersonData | null>(null);
+  const [numerologyResult, setNumerologyResult] = useState<NumerologyCalculation | null>(null);
+  const [nameAnalysis, setNameAnalysis] = useState<NameAnalysis | null>(null);
+  const [babyNameSuggestions, setBabyNameSuggestions] = useState<{
+    boys: BabyNameSuggestion[];
+    girls: BabyNameSuggestion[];
+  }>({ boys: [], girls: [] });
+
+  const handleAnalysisChoice = (type: AnalysisType) => {
+    setAnalysisType(type);
+    setCurrentStep('form');
+  };
+
+  const handleFormSubmit = async (data: PersonData) => {
+    setPersonData(data);
+
+    if (analysisType === 'numerology') {
+      // Calculate numerology and name analysis
+      const driver = calculateDriver(data.dateOfBirth);
+      const conductor = calculateConductor(data.dateOfBirth);
+      const kua = calculateKua(data.dateOfBirth, data.gender);
+      const loshuGrid = createLoshuGrid(data.dateOfBirth, driver, conductor, kua, data.gender);
+      const planes = analyzePlanes(loshuGrid);
+      const compatibility = getCompatibility(driver, conductor);
+
+      const numerologyCalc: NumerologyCalculation = {
+        driver,
+        conductor,
+        kua,
+        loshuGrid,
+        planes,
+        compatibility
+      };
+      setNumerologyResult(numerologyCalc);
+
+      // Analyze current name
+      const nameAnalysisResult = analyzeNameSpelling(
+        data.name,
+        data.surname,
+        driver,
+        conductor,
+        loshuGrid
+      );
+      
+      // If parent initials are provided, generate corrected names with parents
+      if (data.fatherInitial || data.motherInitial) {
+        const correctedNamesWithParents = generateNameCorrectionsWithParents(
+          data.name,
+          data.surname,
+          driver,
+          conductor,
+          loshuGrid,
+          data.fatherInitial,
+          data.motherInitial
+        );
+        nameAnalysisResult.correctedNames = correctedNamesWithParents;
+      } else {
+        // Generate basic corrections without parent initials
+        const basicCorrections = generateCorrectedNamesWithCompleteFormula(
+          data.name,
+          data.surname,
+          driver,
+          conductor,
+          loshuGrid
+        );
+        nameAnalysisResult.correctedNames = basicCorrections;
+      }
+      
+      console.log('=== FINAL NAME ANALYSIS RESULT ===');
+      console.log('Is Auspicious:', nameAnalysisResult.isAuspicious);
+      console.log('Recommendations:', nameAnalysisResult.recommendations);
+      console.log('Corrected Names:', nameAnalysisResult.correctedNames);
+      
+      setNameAnalysis(nameAnalysisResult);
+    } else if (analysisType === 'babynames') {
+      // Calculate basic numerology for baby names
+      const driver = calculateDriver(data.dateOfBirth);
+      const conductor = calculateConductor(data.dateOfBirth);
+      const kua = calculateKua(data.dateOfBirth, data.gender);
+      const loshuGrid = createLoshuGrid(data.dateOfBirth, driver, conductor, kua, data.gender);
+
+      const numerologyCalc: NumerologyCalculation = {
+        driver,
+        conductor,
+        kua,
+        loshuGrid,
+        planes: analyzePlanes(loshuGrid),
+        compatibility: getCompatibility(driver, conductor)
+      };
+      setNumerologyResult(numerologyCalc);
+
+      // Generate baby name suggestions
+      const boysSuggestions = await generateBabyNameSuggestions(
+        'male',
+        data.religion || 'hindu',
+        driver,
+        conductor,
+        loshuGrid,
+        data.name,
+        data.surname
+      );
+      const girlsSuggestions = await generateBabyNameSuggestions(
+        'female',
+        data.religion || 'hindu',
+        driver,
+        conductor,
+        loshuGrid,
+        data.name,
+        data.surname
+      );
+
+      setBabyNameSuggestions({
+        boys: boysSuggestions,
+        girls: girlsSuggestions
+      });
+    }
+
+    setCurrentStep('results');
+  };
+
+  const handleStartOver = () => {
+    setCurrentStep('choice');
+    setAnalysisType(null);
+    setPersonData(null);
+    setNumerologyResult(null);
+    setNameAnalysis(null);
+    setBabyNameSuggestions({ boys: [], girls: [] });
+  };
+
+  const renderAnalysisChoice = () => (
+    <div className="max-w-4xl mx-auto">
+      <div className="text-center mb-12">
+        <h2 className="text-3xl font-bold text-gray-800 mb-4">Choose Your Analysis</h2>
+        <p className="text-lg text-gray-600">Select the type of numerological analysis you need</p>
+      </div>
+      
+      <div className="grid md:grid-cols-2 gap-8">
+        {/* Numerology & Name Correction */}
+        <div 
+          onClick={() => handleAnalysisChoice('numerology')}
+          className="bg-white rounded-2xl shadow-xl p-8 cursor-pointer hover:shadow-2xl transition-all transform hover:-translate-y-2 border-2 border-transparent hover:border-indigo-200"
+        >
+          <div className="text-center">
+            <div className="bg-gradient-to-br from-indigo-100 to-purple-100 rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-6">
+              <Calculator className="w-10 h-10 text-indigo-600" />
+            </div>
+            <h3 className="text-2xl font-bold text-gray-800 mb-4">Date of Birth & Name Analysis</h3>
+            <p className="text-gray-600 mb-6">
+              Complete numerological analysis including Lo Shu grid, Driver-Conductor compatibility, 
+              and name spelling correction based on Chaldean numerology.
+            </p>
+            <ul className="text-left text-sm text-gray-600 space-y-2 mb-6">
+              <li>• Driver, Conductor & Kua Number calculation</li>
+              <li>• Lo Shu Grid with 8 Planes analysis</li>
+              <li>• Name spelling correction recommendations</li>
+              <li>• Career compatibility analysis</li>
+            </ul>
+            <button className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-semibold py-3 px-6 rounded-lg transition-all">
+              Analyze My Numerology
+            </button>
+          </div>
+        </div>
+
+        {/* Baby Name Suggestions */}
+        <div 
+          onClick={() => handleAnalysisChoice('babynames')}
+          className="bg-white rounded-2xl shadow-xl p-8 cursor-pointer hover:shadow-2xl transition-all transform hover:-translate-y-2 border-2 border-transparent hover:border-pink-200"
+        >
+          <div className="text-center">
+            <div className="bg-gradient-to-br from-pink-100 to-rose-100 rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-6">
+              <Baby className="w-10 h-10 text-pink-600" />
+            </div>
+            <h3 className="text-2xl font-bold text-gray-800 mb-4">Baby Name Suggestions</h3>
+            <p className="text-gray-600 mb-6">
+              Get numerologically perfect baby name suggestions based on your birth details 
+              and religious preferences for maximum auspiciousness.
+            </p>
+            <ul className="text-left text-sm text-gray-600 space-y-2 mb-6">
+              <li>• Religion-specific name suggestions</li>
+              <li>• Numerologically auspicious names only</li>
+              <li>• Names compatible with your numerology</li>
+              <li>• Separate suggestions for boys & girls</li>
+            </ul>
+            <button className="w-full bg-gradient-to-r from-pink-600 to-rose-600 hover:from-pink-700 hover:to-rose-700 text-white font-semibold py-3 px-6 rounded-lg transition-all">
+              Get Baby Names
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50">
+      <Header />
+      
+      <main className="container mx-auto px-4 py-8">
+        {currentStep === 'choice' && renderAnalysisChoice()}
+        
+        {currentStep === 'form' && (
+          <div>
+            <div className="text-center mb-6">
+              <button
+                onClick={() => setCurrentStep('choice')}
+                className="text-indigo-600 hover:text-indigo-800 font-medium"
+              >
+                ← Back to Analysis Choice
+              </button>
+            </div>
+            <PersonalInfoForm onSubmit={handleFormSubmit} analysisType={analysisType!} />
+          </div>
+        )}
+        
+        {currentStep === 'results' && personData && numerologyResult && (
+          <div className="space-y-8">
+            <div className="text-center">
+              <button
+                onClick={handleStartOver}
+                className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white px-6 py-2 rounded-lg transition-all mr-4"
+              >
+                Start New Analysis
+              </button>
+              <button
+                onClick={() => setCurrentStep('choice')}
+                className="bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-700 hover:to-gray-800 text-white px-6 py-2 rounded-lg transition-all"
+              >
+                Choose Different Analysis
+              </button>
+            </div>
+            
+            {analysisType === 'numerology' && (
+              <>
+                <NumerologyResults 
+                  person={personData} 
+                  calculation={numerologyResult} 
+                />
+                
+                {nameAnalysis && (
+                  <NameAnalysisComponent 
+                    analysis={nameAnalysis} 
+                    originalFirstName={personData.name}
+                    originalLastName={personData.surname}
+                    driver={numerologyResult.driver}
+                    conductor={numerologyResult.conductor}
+                  />
+                )}
+              </>
+            )}
+            
+            {analysisType === 'babynames' && (
+              <div className="space-y-8">
+                <NumerologyResults
+                  person={personData}
+                  calculation={numerologyResult}
+                />
+
+                <div className="grid lg:grid-cols-2 gap-8">
+                  <BabyNameSuggestions
+                    suggestions={babyNameSuggestions.boys}
+                    gender="male"
+                    religion={personData.religion || 'hindu'}
+                    driver={numerologyResult.driver}
+                    conductor={numerologyResult.conductor}
+                    providedName={personData.name}
+                    providedLastName={personData.surname}
+                  />
+                  <BabyNameSuggestions
+                    suggestions={babyNameSuggestions.girls}
+                    gender="female"
+                    religion={personData.religion || 'hindu'}
+                    driver={numerologyResult.driver}
+                    conductor={numerologyResult.conductor}
+                    providedName={personData.name}
+                    providedLastName={personData.surname}
+                  />
+                </div>
+
+                <div className="space-y-8">
+                  <div className="text-center">
+                    <h2 className="text-3xl font-bold text-gray-800 mb-2">AI-Powered Name Generation</h2>
+                    <p className="text-gray-600">Generate unlimited auspicious names using advanced AI with numerological precision</p>
+                  </div>
+
+                  <div className="grid lg:grid-cols-2 gap-8">
+                    <AINameGenerator
+                      gender="male"
+                      religion={personData.religion || 'hindu'}
+                      driver={numerologyResult.driver}
+                      conductor={numerologyResult.conductor}
+                      targetNumbers={
+                        Object.values(numerologyResult.loshuGrid)
+                          .flat()
+                          .filter((num, idx, arr) => arr.indexOf(num) === idx && num > 0)
+                          .filter(num => ![numerologyResult.loshuGrid.flat()[0]].includes(num))
+                          .slice(0, 4)
+                      }
+                      loshuGrid={numerologyResult.loshuGrid}
+                      providedLastName={personData.surname}
+                    />
+                    <AINameGenerator
+                      gender="female"
+                      religion={personData.religion || 'hindu'}
+                      driver={numerologyResult.driver}
+                      conductor={numerologyResult.conductor}
+                      targetNumbers={
+                        Object.values(numerologyResult.loshuGrid)
+                          .flat()
+                          .filter((num, idx, arr) => arr.indexOf(num) === idx && num > 0)
+                          .filter(num => ![numerologyResult.loshuGrid.flat()[0]].includes(num))
+                          .slice(0, 4)
+                      }
+                      loshuGrid={numerologyResult.loshuGrid}
+                      providedLastName={personData.surname}
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+      </main>
+      
+      <footer className="bg-gray-800 text-white py-8 mt-16">
+        <div className="container mx-auto px-4 text-center">
+          <p className="text-gray-300">
+            © 2025 AskNameAI - Ancient Wisdom Meets Modern Technology
+          </p>
+          <p className="text-sm text-gray-400 mt-2">
+            Based on authentic Chaldean numerology and Lo Shu grid methodology
+          </p>
+        </div>
+      </footer>
+    </div>
+  );
+}
+
+export default App;
