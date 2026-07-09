@@ -140,6 +140,7 @@ CRITICAL RULES - ABSOLUTE REQUIREMENTS:
 5. NEVER suggest names with value ${allAntiNumbers.length > 0 ? allAntiNumbers.join(' or ') : 'none'} (anti to driver ${driver} or conductor ${conductor})
 6. Prioritize names with values: ${targetNumbers.length > 0 ? targetNumbers.filter(n => [1, 3, 5, 6].includes(n)).join(', ') : '1, 3, 5, 6'}
 7. All names must be: auspicious, culturally appropriate, and meaningful
+8. MEANING FIELD: MUST be the ACTUAL etymological definition from Arabic/Sanskkrit/Hebrew/etc. Examples of CORRECT meanings: "Light", "Brave lion", "Gift from God", "Beautiful flower", "Wise ruler". Examples of WRONG meanings (DO NOT USE): "Virtuous", "Honorable", "Radiant", "Pure", "Noble" - these are generic adjectives, NOT etymological meanings
 
 Anti-Number Relationships (CRITICAL - DO NOT VIOLATE):
 - 1 and 8 are enemies (Sun vs Saturn)
