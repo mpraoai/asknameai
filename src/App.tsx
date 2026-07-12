@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { PersonData, NumerologyCalculation, NameAnalysis, BabyNameSuggestion } from './types/numerology';
 import { Header } from './components/Header';
 import { PersonalInfoForm } from './components/PersonalInfoForm';
@@ -6,16 +6,24 @@ import { NumerologyResults } from './components/NumerologyResults';
 import { NameAnalysis as NameAnalysisComponent } from './components/NameAnalysis';
 import { BabyNameSuggestions } from './components/BabyNameSuggestions';
 import { AINameGenerator } from './components/AINameGenerator';
+import { LandingPage } from './components/LandingPage';
+import { AuthModal } from './components/AuthModal';
+import { AdminPanel } from './components/AdminPanel';
 import { calculateDriver, calculateConductor, calculateKua, createLoshuGrid, analyzePlanes } from './utils/numerologyCalculations';
 import { getCompatibility } from './utils/compatibility';
 import { analyzeNameSpelling, generateNameCorrectionsWithParents, generateCorrectedNamesWithCompleteFormula } from './utils/nameCorrection';
 import { generateBabyNameSuggestions } from './utils/babyNames';
-import { User, Baby, Calculator } from 'lucide-react';
+import { User, Baby, Calculator, Sparkles, LogOut, ShieldCheck } from 'lucide-react';
+import { UserProfile } from './services/authService';
+import { getCurrentProfile, signOut } from './services/authService';
+import { Campaign, PricingPlan, getActiveCampaigns, getPricingPlans } from './services/campaignService';
 
 type AnalysisType = 'numerology' | 'babynames' | null;
+type View = 'landing' | 'app';
 type CurrentStep = 'choice' | 'form' | 'results';
 
 function App() {
+  const [view, setView] = useState<View>('landing');
   const [currentStep, setCurrentStep] = useState<CurrentStep>('choice');
   const [analysisType, setAnalysisType] = useState<AnalysisType>(null);
   const [personData, setPersonData] = useState<PersonData | null>(null);
@@ -26,6 +34,55 @@ function App() {
     girls: BabyNameSuggestion[];
   }>({ boys: [], girls: [] });
 
+  // Auth state
+  const [user, setUser] = useState<UserProfile | null>(null);
+  const [authModalOpen, setAuthModalOpen] = useState(false);
+  const [adminPanelOpen, setAdminPanelOpen] = useState(false);
+
+  // Campaign & pricing state
+  const [campaigns, setCampaigns] = useState<Campaign[]>([]);
+  const [pricingPlans, setPricingPlans] = useState<PricingPlan[]>([]);
+
+  useEffect(() => {
+    loadCampaignsAndPricing();
+    checkExistingSession();
+  }, []);
+
+  const loadCampaignsAndPricing = async () => {
+    const [activeCampaigns, plans] = await Promise.all([
+      getActiveCampaigns(),
+      getPricingPlans(),
+    ]);
+    setCampaigns(activeCampaigns);
+    setPricingPlans(plans);
+  };
+
+  const checkExistingSession = async () => {
+    const profile = await getCurrentProfile();
+    if (profile) setUser(profile);
+  };
+
+  const handleAuthSuccess = (profile: UserProfile) => {
+    setUser(profile);
+    setAuthModalOpen(false);
+  };
+
+  const handleSignOut = async () => {
+    await signOut();
+    setUser(null);
+    setView('landing');
+  };
+
+  const handleSelectService = (service: string) => {
+    if (!user) {
+      setAuthModalOpen(true);
+      return;
+    }
+    setAnalysisType(service as AnalysisType);
+    setView('app');
+    setCurrentStep('form');
+  };
+
   const handleAnalysisChoice = (type: AnalysisType) => {
     setAnalysisType(type);
     setCurrentStep('form');
@@ -35,7 +92,6 @@ function App() {
     setPersonData(data);
 
     if (analysisType === 'numerology') {
-      // Calculate numerology and name analysis
       const driver = calculateDriver(data.dateOfBirth);
       const conductor = calculateConductor(data.dateOfBirth);
       const kua = calculateKua(data.dateOfBirth, data.gender);
@@ -53,7 +109,6 @@ function App() {
       };
       setNumerologyResult(numerologyCalc);
 
-      // Analyze current name
       const nameAnalysisResult = analyzeNameSpelling(
         data.name,
         data.surname,
@@ -61,8 +116,7 @@ function App() {
         conductor,
         loshuGrid
       );
-      
-      // If parent initials are provided, generate corrected names with parents
+
       if (data.fatherInitial || data.motherInitial) {
         const correctedNamesWithParents = generateNameCorrectionsWithParents(
           data.name,
@@ -75,7 +129,6 @@ function App() {
         );
         nameAnalysisResult.correctedNames = correctedNamesWithParents;
       } else {
-        // Generate basic corrections without parent initials
         const basicCorrections = generateCorrectedNamesWithCompleteFormula(
           data.name,
           data.surname,
@@ -85,15 +138,9 @@ function App() {
         );
         nameAnalysisResult.correctedNames = basicCorrections;
       }
-      
-      console.log('=== FINAL NAME ANALYSIS RESULT ===');
-      console.log('Is Auspicious:', nameAnalysisResult.isAuspicious);
-      console.log('Recommendations:', nameAnalysisResult.recommendations);
-      console.log('Corrected Names:', nameAnalysisResult.correctedNames);
-      
+
       setNameAnalysis(nameAnalysisResult);
     } else if (analysisType === 'babynames') {
-      // Calculate basic numerology for baby names
       const driver = calculateDriver(data.dateOfBirth);
       const conductor = calculateConductor(data.dateOfBirth);
       const kua = calculateKua(data.dateOfBirth, data.gender);
@@ -109,7 +156,6 @@ function App() {
       };
       setNumerologyResult(numerologyCalc);
 
-      // Generate baby name suggestions
       const boysSuggestions = await generateBabyNameSuggestions(
         'male',
         data.religion || 'hindu',
@@ -147,26 +193,30 @@ function App() {
     setBabyNameSuggestions({ boys: [], girls: [] });
   };
 
+  const handleBackToLanding = () => {
+    setView('landing');
+    handleStartOver();
+  };
+
   const renderAnalysisChoice = () => (
     <div className="max-w-4xl mx-auto">
       <div className="text-center mb-12">
         <h2 className="text-3xl font-bold text-gray-800 mb-4">Choose Your Analysis</h2>
         <p className="text-lg text-gray-600">Select the type of numerological analysis you need</p>
       </div>
-      
+
       <div className="grid md:grid-cols-2 gap-8">
-        {/* Numerology & Name Correction */}
-        <div 
+        <div
           onClick={() => handleAnalysisChoice('numerology')}
-          className="bg-white rounded-2xl shadow-xl p-8 cursor-pointer hover:shadow-2xl transition-all transform hover:-translate-y-2 border-2 border-transparent hover:border-indigo-200"
+          className="bg-white rounded-2xl shadow-xl p-8 cursor-pointer hover:shadow-2xl transition-all transform hover:-translate-y-2 border-2 border-transparent hover:border-teal-200"
         >
           <div className="text-center">
-            <div className="bg-gradient-to-br from-indigo-100 to-purple-100 rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-6">
-              <Calculator className="w-10 h-10 text-indigo-600" />
+            <div className="bg-gradient-to-br from-teal-100 to-emerald-100 rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-6">
+              <Calculator className="w-10 h-10 text-teal-600" />
             </div>
             <h3 className="text-2xl font-bold text-gray-800 mb-4">Date of Birth & Name Analysis</h3>
             <p className="text-gray-600 mb-6">
-              Complete numerological analysis including Lo Shu grid, Driver-Conductor compatibility, 
+              Complete numerological analysis including Lo Shu grid, Driver-Conductor compatibility,
               and name spelling correction based on Chaldean numerology.
             </p>
             <ul className="text-left text-sm text-gray-600 space-y-2 mb-6">
@@ -175,14 +225,13 @@ function App() {
               <li>• Name spelling correction recommendations</li>
               <li>• Career compatibility analysis</li>
             </ul>
-            <button className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-semibold py-3 px-6 rounded-lg transition-all">
+            <button className="w-full bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 text-white font-semibold py-3 px-6 rounded-lg transition-all">
               Analyze My Numerology
             </button>
           </div>
         </div>
 
-        {/* Baby Name Suggestions */}
-        <div 
+        <div
           onClick={() => handleAnalysisChoice('babynames')}
           className="bg-white rounded-2xl shadow-xl p-8 cursor-pointer hover:shadow-2xl transition-all transform hover:-translate-y-2 border-2 border-transparent hover:border-pink-200"
         >
@@ -192,7 +241,7 @@ function App() {
             </div>
             <h3 className="text-2xl font-bold text-gray-800 mb-4">Baby Name Suggestions</h3>
             <p className="text-gray-600 mb-6">
-              Get numerologically perfect baby name suggestions based on your birth details 
+              Get numerologically perfect baby name suggestions based on your birth details
               and religious preferences for maximum auspiciousness.
             </p>
             <ul className="text-left text-sm text-gray-600 space-y-2 mb-6">
@@ -210,19 +259,83 @@ function App() {
     </div>
   );
 
+  // Landing Page View
+  if (view === 'landing') {
+    return (
+      <>
+        <LandingPage
+          campaigns={campaigns}
+          pricingPlans={pricingPlans}
+          onSelectService={handleSelectService}
+          onOpenAuth={() => setAuthModalOpen(true)}
+          onOpenAdmin={() => setAdminPanelOpen(true)}
+        />
+        <AuthModal
+          isOpen={authModalOpen}
+          onClose={() => setAuthModalOpen(false)}
+          onAuthSuccess={handleAuthSuccess}
+        />
+        <AdminPanel
+          isOpen={adminPanelOpen}
+          onClose={() => setAdminPanelOpen(false)}
+        />
+      </>
+    );
+  }
+
+  // App View (existing numerology screens)
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50">
+    <div className="min-h-screen bg-gradient-to-br from-teal-50 via-white to-emerald-50">
+      {/* Top bar with user info and navigation */}
+      <div className="bg-white shadow-sm border-b border-gray-100 sticky top-0 z-40">
+        <div className="container mx-auto px-4 py-3 flex items-center justify-between">
+          <button
+            onClick={handleBackToLanding}
+            className="flex items-center gap-2 text-gray-700 hover:text-teal-600 transition-colors"
+          >
+            <Sparkles className="w-5 h-5 text-teal-600" />
+            <span className="font-bold text-lg">AskName<span className="text-teal-600">AI</span></span>
+          </button>
+
+          <div className="flex items-center gap-4">
+            {user && (
+              <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2 text-sm text-gray-600">
+                  <ShieldCheck className="w-4 h-4 text-teal-600" />
+                  <span>Hi, {user.first_name}</span>
+                  {user.is_admin && (
+                    <button
+                      onClick={() => setAdminPanelOpen(true)}
+                      className="bg-teal-50 text-teal-700 px-3 py-1 rounded-full text-xs font-semibold hover:bg-teal-100 transition-all"
+                    >
+                      Admin Panel
+                    </button>
+                  )}
+                </div>
+                <button
+                  onClick={handleSignOut}
+                  className="text-gray-400 hover:text-red-600 transition-colors"
+                  title="Sign out"
+                >
+                  <LogOut className="w-5 h-5" />
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
       <Header />
-      
+
       <main className="container mx-auto px-4 py-8">
         {currentStep === 'choice' && renderAnalysisChoice()}
-        
+
         {currentStep === 'form' && (
           <div>
             <div className="text-center mb-6">
               <button
                 onClick={() => setCurrentStep('choice')}
-                className="text-indigo-600 hover:text-indigo-800 font-medium"
+                className="text-teal-600 hover:text-teal-800 font-medium"
               >
                 ← Back to Analysis Choice
               </button>
@@ -230,13 +343,13 @@ function App() {
             <PersonalInfoForm onSubmit={handleFormSubmit} analysisType={analysisType!} />
           </div>
         )}
-        
+
         {currentStep === 'results' && personData && numerologyResult && (
           <div className="space-y-8">
             <div className="text-center">
               <button
                 onClick={handleStartOver}
-                className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white px-6 py-2 rounded-lg transition-all mr-4"
+                className="bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 text-white px-6 py-2 rounded-lg transition-all mr-4"
               >
                 Start New Analysis
               </button>
@@ -247,17 +360,17 @@ function App() {
                 Choose Different Analysis
               </button>
             </div>
-            
+
             {analysisType === 'numerology' && (
               <>
-                <NumerologyResults 
-                  person={personData} 
-                  calculation={numerologyResult} 
+                <NumerologyResults
+                  person={personData}
+                  calculation={numerologyResult}
                 />
-                
+
                 {nameAnalysis && (
-                  <NameAnalysisComponent 
-                    analysis={nameAnalysis} 
+                  <NameAnalysisComponent
+                    analysis={nameAnalysis}
                     originalFirstName={personData.name}
                     originalLastName={personData.surname}
                     driver={numerologyResult.driver}
@@ -266,7 +379,7 @@ function App() {
                 )}
               </>
             )}
-            
+
             {analysisType === 'babynames' && (
               <div className="space-y-8">
                 <NumerologyResults
@@ -339,7 +452,7 @@ function App() {
           </div>
         )}
       </main>
-      
+
       <footer className="bg-gray-800 text-white py-8 mt-16">
         <div className="container mx-auto px-4 text-center">
           <p className="text-gray-300">
@@ -350,6 +463,11 @@ function App() {
           </p>
         </div>
       </footer>
+
+      <AdminPanel
+        isOpen={adminPanelOpen}
+        onClose={() => setAdminPanelOpen(false)}
+      />
     </div>
   );
 }
