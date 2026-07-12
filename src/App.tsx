@@ -39,6 +39,9 @@ function App() {
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [adminPanelOpen, setAdminPanelOpen] = useState(false);
 
+  // Pending service selection (when user clicks before logging in)
+  const [pendingService, setPendingService] = useState<string | null>(null);
+
   // Campaign & pricing state
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
   const [pricingPlans, setPricingPlans] = useState<PricingPlan[]>([]);
@@ -65,6 +68,12 @@ function App() {
   const handleAuthSuccess = (profile: UserProfile) => {
     setUser(profile);
     setAuthModalOpen(false);
+    if (pendingService) {
+      setAnalysisType(pendingService as AnalysisType);
+      setView('app');
+      setCurrentStep('form');
+      setPendingService(null);
+    }
   };
 
   const handleSignOut = async () => {
@@ -75,6 +84,7 @@ function App() {
 
   const handleSelectService = (service: string) => {
     if (!user) {
+      setPendingService(service);
       setAuthModalOpen(true);
       return;
     }
@@ -208,11 +218,11 @@ function App() {
       <div className="grid md:grid-cols-2 gap-8">
         <div
           onClick={() => handleAnalysisChoice('numerology')}
-          className="bg-white rounded-2xl shadow-xl p-8 cursor-pointer hover:shadow-2xl transition-all transform hover:-translate-y-2 border-2 border-transparent hover:border-teal-200"
+          className="bg-white rounded-2xl shadow-xl p-8 cursor-pointer hover:shadow-2xl transition-all transform hover:-translate-y-2 border-2 border-transparent hover:border-indigo-200"
         >
           <div className="text-center">
             <div className="bg-gradient-to-br from-teal-100 to-emerald-100 rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-6">
-              <Calculator className="w-10 h-10 text-teal-600" />
+              <Calculator className="w-10 h-10 text-indigo-600" />
             </div>
             <h3 className="text-2xl font-bold text-gray-800 mb-4">Date of Birth & Name Analysis</h3>
             <p className="text-gray-600 mb-6">
@@ -225,7 +235,7 @@ function App() {
               <li>• Name spelling correction recommendations</li>
               <li>• Career compatibility analysis</li>
             </ul>
-            <button className="w-full bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 text-white font-semibold py-3 px-6 rounded-lg transition-all">
+            <button className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-teal-700 hover:to-emerald-700 text-white font-semibold py-3 px-6 rounded-lg transition-all">
               Analyze My Numerology
             </button>
           </div>
@@ -285,28 +295,28 @@ function App() {
 
   // App View (existing numerology screens)
   return (
-    <div className="min-h-screen bg-gradient-to-br from-teal-50 via-white to-emerald-50">
+    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50">
       {/* Top bar with user info and navigation */}
       <div className="bg-white shadow-sm border-b border-gray-100 sticky top-0 z-40">
         <div className="container mx-auto px-4 py-3 flex items-center justify-between">
           <button
             onClick={handleBackToLanding}
-            className="flex items-center gap-2 text-gray-700 hover:text-teal-600 transition-colors"
+            className="flex items-center gap-2 text-gray-700 hover:text-indigo-600 transition-colors"
           >
-            <Sparkles className="w-5 h-5 text-teal-600" />
-            <span className="font-bold text-lg">AskName<span className="text-teal-600">AI</span></span>
+            <Sparkles className="w-5 h-5 text-indigo-600" />
+            <span className="font-bold text-lg">AskName<span className="text-indigo-600">AI</span></span>
           </button>
 
           <div className="flex items-center gap-4">
             {user && (
               <div className="flex items-center gap-3">
                 <div className="flex items-center gap-2 text-sm text-gray-600">
-                  <ShieldCheck className="w-4 h-4 text-teal-600" />
+                  <ShieldCheck className="w-4 h-4 text-indigo-600" />
                   <span>Hi, {user.first_name}</span>
                   {user.is_admin && (
                     <button
                       onClick={() => setAdminPanelOpen(true)}
-                      className="bg-teal-50 text-teal-700 px-3 py-1 rounded-full text-xs font-semibold hover:bg-teal-100 transition-all"
+                      className="bg-indigo-50 text-indigo-700 px-3 py-1 rounded-full text-xs font-semibold hover:bg-indigo-100 transition-all"
                     >
                       Admin Panel
                     </button>
@@ -335,7 +345,7 @@ function App() {
             <div className="text-center mb-6">
               <button
                 onClick={() => setCurrentStep('choice')}
-                className="text-teal-600 hover:text-teal-800 font-medium"
+                className="text-indigo-600 hover:text-indigo-800 font-medium"
               >
                 ← Back to Analysis Choice
               </button>
@@ -349,7 +359,7 @@ function App() {
             <div className="text-center">
               <button
                 onClick={handleStartOver}
-                className="bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 text-white px-6 py-2 rounded-lg transition-all mr-4"
+                className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-teal-700 hover:to-emerald-700 text-white px-6 py-2 rounded-lg transition-all mr-4"
               >
                 Start New Analysis
               </button>

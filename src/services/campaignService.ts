@@ -7,7 +7,7 @@ export interface Campaign {
   discount_label: string | null;
   discount_percentage: number;
   fixed_price: number | null;
-  banner_color: string;
+  banner_color: string | null;
   cta_text: string;
   start_date: string;
   end_date: string;

@@ -72,9 +72,9 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ isOpen, onClose }) => {
     <div className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm flex items-start justify-center p-4 overflow-y-auto animate-fadeIn">
       <div className="bg-white rounded-3xl shadow-2xl w-full max-w-5xl my-8 overflow-hidden">
         {/* Header */}
-        <div className="bg-gradient-to-r from-gray-900 to-teal-900 px-8 py-6 flex items-center justify-between sticky top-0 z-10">
+        <div className="bg-gradient-to-r from-gray-900 to-indigo-900 px-8 py-6 flex items-center justify-between sticky top-0 z-10">
           <div className="flex items-center gap-3">
-            <Gift className="w-7 h-7 text-teal-400" />
+            <Gift className="w-7 h-7 text-indigo-400" />
             <h2 className="text-2xl font-bold text-white">Admin Control Panel</h2>
           </div>
           <button onClick={onClose} className="text-white/80 hover:text-white transition-colors">
@@ -83,7 +83,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ isOpen, onClose }) => {
         </div>
 
         {saveSuccess && (
-          <div className="bg-teal-50 border-b border-teal-200 text-teal-700 px-8 py-3 text-sm font-medium flex items-center gap-2 animate-fadeIn">
+          <div className="bg-indigo-50 border-b border-indigo-200 text-indigo-700 px-8 py-3 text-sm font-medium flex items-center gap-2 animate-fadeIn">
             <Check className="w-4 h-4" /> Changes saved successfully!
           </div>
         )}
@@ -93,29 +93,29 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ isOpen, onClose }) => {
           <button
             onClick={() => setTab('campaigns')}
             className={`py-4 px-6 font-semibold transition-colors relative ${
-              tab === 'campaigns' ? 'text-teal-600' : 'text-gray-500 hover:text-gray-700'
+              tab === 'campaigns' ? 'text-indigo-600' : 'text-gray-500 hover:text-gray-700'
             }`}
           >
             <Gift className="w-5 h-5 inline mr-2" />
             Campaigns
-            {tab === 'campaigns' && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-teal-600"></div>}
+            {tab === 'campaigns' && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-indigo-600"></div>}
           </button>
           <button
             onClick={() => setTab('pricing')}
             className={`py-4 px-6 font-semibold transition-colors relative ${
-              tab === 'pricing' ? 'text-teal-600' : 'text-gray-500 hover:text-gray-700'
+              tab === 'pricing' ? 'text-indigo-600' : 'text-gray-500 hover:text-gray-700'
             }`}
           >
             <IndianRupee className="w-5 h-5 inline mr-2" />
             Pricing Plans
-            {tab === 'pricing' && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-teal-600"></div>}
+            {tab === 'pricing' && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-indigo-600"></div>}
           </button>
         </div>
 
         <div className="p-8 max-h-[60vh] overflow-y-auto">
           {loading ? (
             <div className="flex items-center justify-center py-20">
-              <Loader2 className="w-8 h-8 text-teal-600 animate-spin" />
+              <Loader2 className="w-8 h-8 text-indigo-600 animate-spin" />
             </div>
           ) : tab === 'campaigns' ? (
             <CampaignTab
@@ -175,7 +175,7 @@ const CampaignTab: React.FC<{
         </div>
         <button
           onClick={() => setShowForm(true)}
-          className="bg-gradient-to-r from-teal-600 to-emerald-600 text-white px-5 py-2.5 rounded-xl font-semibold hover:shadow-lg transition-all flex items-center gap-2"
+          className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-5 py-2.5 rounded-xl font-semibold hover:shadow-lg transition-all flex items-center gap-2"
         >
           <Plus className="w-5 h-5" /> New Campaign
         </button>
@@ -195,7 +195,7 @@ const CampaignTab: React.FC<{
                   <div className="flex items-center gap-2 flex-wrap mb-2">
                     <h4 className="font-bold text-gray-900">{c.title}</h4>
                     {c.festival_name && (
-                      <span className="bg-teal-100 text-teal-700 text-xs font-bold px-2 py-0.5 rounded-full">{c.festival_name}</span>
+                      <span className="bg-indigo-100 text-indigo-700 text-xs font-bold px-2 py-0.5 rounded-full">{c.festival_name}</span>
                     )}
                     {c.discount_label && (
                       <span className="bg-amber-100 text-amber-700 text-xs font-bold px-2 py-0.5 rounded-full">{c.discount_label}</span>
@@ -213,10 +213,10 @@ const CampaignTab: React.FC<{
                   </div>
                 </div>
                 <div className="flex items-center gap-2 flex-shrink-0">
-                  <button onClick={() => onToggle(c)} className="text-gray-400 hover:text-teal-600 transition-colors p-2" title={c.is_active ? 'Deactivate' : 'Activate'}>
-                    {c.is_active ? <ToggleRight className="w-6 h-6 text-teal-600" /> : <ToggleLeft className="w-6 h-6" />}
+                  <button onClick={() => onToggle(c)} className="text-gray-400 hover:text-indigo-600 transition-colors p-2" title={c.is_active ? 'Deactivate' : 'Activate'}>
+                    {c.is_active ? <ToggleRight className="w-6 h-6 text-indigo-600" /> : <ToggleLeft className="w-6 h-6" />}
                   </button>
-                  <button onClick={() => setEditingCampaign(c)} className="text-gray-400 hover:text-teal-600 transition-colors p-2" title="Edit">
+                  <button onClick={() => setEditingCampaign(c)} className="text-gray-400 hover:text-indigo-600 transition-colors p-2" title="Edit">
                     <Edit2 className="w-5 h-5" />
                   </button>
                   <button onClick={() => onDelete(c.id)} className="text-gray-400 hover:text-red-600 transition-colors p-2" title="Delete">
@@ -246,7 +246,7 @@ const CampaignForm: React.FC<{
     discount_label: campaign?.discount_label || '',
     discount_percentage: campaign?.discount_percentage || 0,
     fixed_price: campaign?.fixed_price || null as number | null,
-    banner_color: campaign?.banner_color || '#0F766E',
+    banner_color: campaign?.banner_color || '#4F46E5',
     cta_text: campaign?.cta_text || 'Grab Offer Now',
     festival_name: campaign?.festival_name || '',
     start_date: campaign?.start_date ? new Date(campaign.start_date).toISOString().slice(0, 10) : new Date().toISOString().slice(0, 10),
@@ -256,7 +256,7 @@ const CampaignForm: React.FC<{
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
 
-  const colorOptions = ['#0F766E', '#D97706', '#DC2626', '#7C3AED', '#2563EB', '#059669', '#DB2777', '#EA580C'];
+  const colorOptions = ['#4F46E5', '#D97706', '#DC2626', '#7C3AED', '#2563EB', '#059669', '#DB2777', '#EA580C'];
 
   const handleSubmit = async () => {
     setSaving(true);
@@ -312,7 +312,7 @@ const CampaignForm: React.FC<{
               type="text"
               value={form.title}
               onChange={(e) => setForm({ ...form, title: e.target.value })}
-              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
               placeholder="e.g., Diwali Special Offer"
             />
           </div>
@@ -322,7 +322,7 @@ const CampaignForm: React.FC<{
               type="text"
               value={form.festival_name}
               onChange={(e) => setForm({ ...form, festival_name: e.target.value })}
-              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
               placeholder="e.g., Diwali, New Year, Navratri"
             />
           </div>
@@ -334,7 +334,7 @@ const CampaignForm: React.FC<{
             value={form.description}
             onChange={(e) => setForm({ ...form, description: e.target.value })}
             rows={3}
-            className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-transparent resize-none"
+            className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none"
             placeholder="Describe the promotional offer..."
           />
         </div>
@@ -346,7 +346,7 @@ const CampaignForm: React.FC<{
               type="text"
               value={form.discount_label}
               onChange={(e) => setForm({ ...form, discount_label: e.target.value })}
-              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
               placeholder="e.g., 25% OFF"
             />
           </div>
@@ -358,7 +358,7 @@ const CampaignForm: React.FC<{
               max="100"
               value={form.discount_percentage}
               onChange={(e) => setForm({ ...form, discount_percentage: parseInt(e.target.value) || 0 })}
-              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
             />
           </div>
           <div>
@@ -368,7 +368,7 @@ const CampaignForm: React.FC<{
               min="0"
               value={form.fixed_price ?? ''}
               onChange={(e) => setForm({ ...form, fixed_price: e.target.value ? parseInt(e.target.value) : null })}
-              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
               placeholder="Override price"
             />
           </div>
@@ -381,7 +381,7 @@ const CampaignForm: React.FC<{
               type="date"
               value={form.start_date}
               onChange={(e) => setForm({ ...form, start_date: e.target.value })}
-              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
             />
           </div>
           <div>
@@ -390,7 +390,7 @@ const CampaignForm: React.FC<{
               type="date"
               value={form.end_date}
               onChange={(e) => setForm({ ...form, end_date: e.target.value })}
-              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
             />
           </div>
         </div>
@@ -402,7 +402,7 @@ const CampaignForm: React.FC<{
               type="text"
               value={form.cta_text}
               onChange={(e) => setForm({ ...form, cta_text: e.target.value })}
-              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
               placeholder="e.g., Grab Offer Now"
             />
           </div>
@@ -424,7 +424,7 @@ const CampaignForm: React.FC<{
         <label className="flex items-center gap-3 cursor-pointer">
           <button
             onClick={() => setForm({ ...form, is_active: !form.is_active })}
-            className={form.is_active ? 'text-teal-600' : 'text-gray-300'}
+            className={form.is_active ? 'text-indigo-600' : 'text-gray-300'}
           >
             {form.is_active ? <ToggleRight className="w-7 h-7" /> : <ToggleLeft className="w-7 h-7" />}
           </button>
@@ -435,7 +435,7 @@ const CampaignForm: React.FC<{
           <button
             onClick={handleSubmit}
             disabled={saving}
-            className="flex-1 bg-gradient-to-r from-teal-600 to-emerald-600 text-white py-3 rounded-xl font-semibold hover:shadow-lg transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+            className="flex-1 bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-3 rounded-xl font-semibold hover:shadow-lg transition-all disabled:opacity-50 flex items-center justify-center gap-2"
           >
             {saving ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
             {campaign ? 'Update Campaign' : 'Create Campaign'}
@@ -480,7 +480,7 @@ const PricingTab: React.FC<{
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-1">
                   <h4 className="font-bold text-gray-900">{plan.name}</h4>
-                  {plan.is_popular && <span className="bg-teal-100 text-teal-700 text-xs font-bold px-2 py-0.5 rounded-full">Popular</span>}
+                  {plan.is_popular && <span className="bg-indigo-100 text-indigo-700 text-xs font-bold px-2 py-0.5 rounded-full">Popular</span>}
                   <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${plan.is_active ? 'bg-green-100 text-green-700' : 'bg-gray-200 text-gray-600'}`}>
                     {plan.is_active ? 'Active' : 'Inactive'}
                   </span>
@@ -497,10 +497,10 @@ const PricingTab: React.FC<{
                 </div>
               </div>
               <div className="flex items-center gap-2">
-                <button onClick={() => onToggle(plan)} className="text-gray-400 hover:text-teal-600 transition-colors p-2" title={plan.is_active ? 'Deactivate' : 'Activate'}>
-                  {plan.is_active ? <ToggleRight className="w-6 h-6 text-teal-600" /> : <ToggleLeft className="w-6 h-6" />}
+                <button onClick={() => onToggle(plan)} className="text-gray-400 hover:text-indigo-600 transition-colors p-2" title={plan.is_active ? 'Deactivate' : 'Activate'}>
+                  {plan.is_active ? <ToggleRight className="w-6 h-6 text-indigo-600" /> : <ToggleLeft className="w-6 h-6" />}
                 </button>
-                <button onClick={() => setEditingPricing(plan)} className="text-gray-400 hover:text-teal-600 transition-colors p-2" title="Edit price">
+                <button onClick={() => setEditingPricing(plan)} className="text-gray-400 hover:text-indigo-600 transition-colors p-2" title="Edit price">
                   <Edit2 className="w-5 h-5" />
                 </button>
               </div>
@@ -529,11 +529,11 @@ const PricingEditForm: React.FC<{
       </div>
 
       <div className="space-y-5 max-w-md">
-        <div className="bg-teal-50 border border-teal-200 rounded-xl p-4">
-          <p className="text-sm text-teal-800">
+        <div className="bg-indigo-50 border border-indigo-200 rounded-xl p-4">
+          <p className="text-sm text-indigo-800">
             <strong>Original Price:</strong> ₹{plan.original_price} (cannot be changed)
           </p>
-          <p className="text-xs text-teal-600 mt-1">
+          <p className="text-xs text-indigo-600 mt-1">
             Set a discounted price for festive campaigns. Leave blank to use original price.
           </p>
         </div>
@@ -546,7 +546,7 @@ const PricingEditForm: React.FC<{
             max={plan.original_price}
             value={discountedPrice}
             onChange={(e) => setDiscountedPrice(e.target.value)}
-            className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+            className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
             placeholder={`Original: ₹${plan.original_price}`}
           />
           {discountedPrice && parseInt(discountedPrice) < plan.original_price && (
@@ -559,7 +559,7 @@ const PricingEditForm: React.FC<{
         <div className="flex gap-3">
           <button
             onClick={() => onSave(plan, { discounted_price: discountedPrice ? parseInt(discountedPrice) : null })}
-            className="flex-1 bg-gradient-to-r from-teal-600 to-emerald-600 text-white py-3 rounded-xl font-semibold hover:shadow-lg transition-all flex items-center justify-center gap-2"
+            className="flex-1 bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-3 rounded-xl font-semibold hover:shadow-lg transition-all flex items-center justify-center gap-2"
           >
             <Save className="w-5 h-5" /> Save Price
           </button>

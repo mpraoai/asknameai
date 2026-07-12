@@ -26,7 +26,7 @@ export const CampaignBanner: React.FC<CampaignBannerProps> = ({ campaigns }) => 
   return (
     <div
       className="relative z-40 text-white shadow-lg overflow-hidden"
-      style={{ backgroundColor: campaign.banner_color }}
+      style={{ backgroundColor: campaign.banner_color || '#4F46E5' }}
     >
       <div className="absolute inset-0 opacity-10">
         <div className="absolute top-0 left-0 w-40 h-40 bg-white rounded-full blur-3xl"></div>
@@ -45,7 +45,7 @@ export const CampaignBanner: React.FC<CampaignBannerProps> = ({ campaigns }) => 
                   </span>
                 )}
                 {campaign.discount_label && (
-                  <span className="bg-white text-sm font-bold px-2.5 py-0.5 rounded-full" style={{ color: campaign.banner_color }}>
+                  <span className="bg-white text-sm font-bold px-2.5 py-0.5 rounded-full" style={{ color: campaign.banner_color || '#4F46E5' }}>
                     {campaign.discount_label}
                   </span>
                 )}
@@ -60,7 +60,7 @@ export const CampaignBanner: React.FC<CampaignBannerProps> = ({ campaigns }) => 
           <div className="flex items-center gap-2 flex-shrink-0">
             <button
               className="bg-white text-sm font-semibold px-4 py-1.5 rounded-full hover:shadow-lg transition-all whitespace-nowrap"
-              style={{ color: campaign.banner_color }}
+              style={{ color: campaign.banner_color || '#4F46E5' }}
             >
               {campaign.cta_text}
             </button>

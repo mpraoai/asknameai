@@ -213,7 +213,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuthSuc
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fadeIn">
       <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden">
         {/* Header */}
-        <div className="bg-gradient-to-r from-teal-600 to-emerald-600 px-8 py-6 flex items-center justify-between">
+        <div className="bg-gradient-to-r from-indigo-600 to-purple-600 px-8 py-6 flex items-center justify-between">
           <h2 className="text-2xl font-bold text-white">
             {mode === 'select' && 'Welcome to AskNameAI'}
             {mode === 'register' && 'Create Your Account'}
@@ -239,13 +239,13 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuthSuc
               </p>
               <button
                 onClick={() => setMode('register')}
-                className="w-full bg-gradient-to-r from-teal-600 to-emerald-600 text-white py-4 rounded-xl font-semibold hover:shadow-lg transition-all"
+                className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-4 rounded-xl font-semibold hover:shadow-lg transition-all"
               >
                 New User? Register Here
               </button>
               <button
                 onClick={() => setMode('login')}
-                className="w-full bg-teal-50 text-teal-700 border-2 border-teal-200 py-4 rounded-xl font-semibold hover:bg-teal-100 transition-all"
+                className="w-full bg-indigo-50 text-indigo-700 border-2 border-indigo-200 py-4 rounded-xl font-semibold hover:bg-indigo-100 transition-all"
               >
                 Already Registered? Login
               </button>
@@ -264,7 +264,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuthSuc
                       type="text"
                       value={firstName}
                       onChange={(e) => setFirstName(e.target.value)}
-                      className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                      className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                       placeholder="First name"
                     />
                   </div>
@@ -277,7 +277,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuthSuc
                       type="text"
                       value={lastName}
                       onChange={(e) => setLastName(e.target.value)}
-                      className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                      className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                       placeholder="Last name"
                     />
                   </div>
@@ -292,7 +292,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuthSuc
                     type="tel"
                     value={mobileNumber}
                     onChange={(e) => setMobileNumber(e.target.value.replace(/\D/g, '').slice(0, 10))}
-                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                     placeholder="10-digit mobile number"
                     maxLength={10}
                   />
@@ -307,7 +307,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuthSuc
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                     placeholder="your@email.com"
                   />
                 </div>
@@ -316,12 +316,12 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuthSuc
               <button
                 onClick={handleRegisterSubmit}
                 disabled={loading}
-                className="w-full bg-gradient-to-r from-teal-600 to-emerald-600 text-white py-4 rounded-xl font-semibold hover:shadow-lg transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+                className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-4 rounded-xl font-semibold hover:shadow-lg transition-all disabled:opacity-50 flex items-center justify-center gap-2"
               >
                 {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Send OTP & Continue'}
               </button>
 
-              <button onClick={() => setMode('select')} className="w-full text-center text-sm text-gray-500 hover:text-teal-600 flex items-center justify-center gap-1">
+              <button onClick={() => setMode('select')} className="w-full text-center text-sm text-gray-500 hover:text-indigo-600 flex items-center justify-center gap-1">
                 <ChevronLeft className="w-4 h-4" /> Back
               </button>
             </div>
@@ -331,8 +331,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuthSuc
           {mode === 'register' && registerStep === 'otp' && (
             <div className="space-y-5">
               <div className="text-center mb-6">
-                <div className="bg-teal-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
-                  <ShieldCheck className="w-8 h-8 text-teal-600" />
+                <div className="bg-indigo-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                  <ShieldCheck className="w-8 h-8 text-indigo-600" />
                 </div>
                 <h3 className="text-lg font-bold text-gray-900 mb-2">Verify Your Mobile</h3>
                 <p className="text-sm text-gray-600">
@@ -349,7 +349,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuthSuc
                 type="text"
                 value={otpCode}
                 onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                className="w-full text-center text-2xl tracking-[0.5em] py-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                className="w-full text-center text-2xl tracking-[0.5em] py-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                 placeholder="------"
                 maxLength={6}
               />
@@ -357,14 +357,14 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuthSuc
               <button
                 onClick={handleRegisterOTPVerify}
                 disabled={loading || otpCode.length !== 6}
-                className="w-full bg-gradient-to-r from-teal-600 to-emerald-600 text-white py-4 rounded-xl font-semibold hover:shadow-lg transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+                className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-4 rounded-xl font-semibold hover:shadow-lg transition-all disabled:opacity-50 flex items-center justify-center gap-2"
               >
                 {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Verify & Create Account'}
               </button>
 
               <button
                 onClick={() => { setRegisterStep('details'); setOtpCode(''); setError(''); }}
-                className="w-full text-center text-sm text-gray-500 hover:text-teal-600 flex items-center justify-center gap-1"
+                className="w-full text-center text-sm text-gray-500 hover:text-indigo-600 flex items-center justify-center gap-1"
               >
                 <ChevronLeft className="w-4 h-4" /> Change details
               </button>
@@ -374,8 +374,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuthSuc
           {/* Registration Success */}
           {mode === 'register' && registerStep === 'success' && (
             <div className="text-center py-8">
-              <div className="bg-teal-100 rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-6">
-                <CheckCircle2 className="w-10 h-10 text-teal-600" />
+              <div className="bg-indigo-100 rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-6">
+                <CheckCircle2 className="w-10 h-10 text-indigo-600" />
               </div>
               <h3 className="text-xl font-bold text-gray-900 mb-2">Account Created Successfully!</h3>
               <p className="text-gray-600">Welcome to AskNameAI, {firstName}!</p>
@@ -393,7 +393,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuthSuc
                     type="tel"
                     value={mobileNumber}
                     onChange={(e) => setMobileNumber(e.target.value.replace(/\D/g, '').slice(0, 10))}
-                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                     placeholder="10-digit mobile number"
                     maxLength={10}
                   />
@@ -403,12 +403,12 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuthSuc
               <button
                 onClick={handleLoginMobileSubmit}
                 disabled={loading}
-                className="w-full bg-gradient-to-r from-teal-600 to-emerald-600 text-white py-4 rounded-xl font-semibold hover:shadow-lg transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+                className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-4 rounded-xl font-semibold hover:shadow-lg transition-all disabled:opacity-50 flex items-center justify-center gap-2"
               >
                 {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Send OTP'}
               </button>
 
-              <button onClick={() => setMode('select')} className="w-full text-center text-sm text-gray-500 hover:text-teal-600 flex items-center justify-center gap-1">
+              <button onClick={() => setMode('select')} className="w-full text-center text-sm text-gray-500 hover:text-indigo-600 flex items-center justify-center gap-1">
                 <ChevronLeft className="w-4 h-4" /> Back
               </button>
             </div>
@@ -418,8 +418,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuthSuc
           {mode === 'login' && loginStep === 'otp' && (
             <div className="space-y-5">
               <div className="text-center mb-6">
-                <div className="bg-teal-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
-                  <ShieldCheck className="w-8 h-8 text-teal-600" />
+                <div className="bg-indigo-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                  <ShieldCheck className="w-8 h-8 text-indigo-600" />
                 </div>
                 <h3 className="text-lg font-bold text-gray-900 mb-2">Enter OTP</h3>
                 <p className="text-sm text-gray-600">
@@ -436,7 +436,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuthSuc
                 type="text"
                 value={otpCode}
                 onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                className="w-full text-center text-2xl tracking-[0.5em] py-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                className="w-full text-center text-2xl tracking-[0.5em] py-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                 placeholder="------"
                 maxLength={6}
               />
@@ -444,14 +444,14 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuthSuc
               <button
                 onClick={handleLoginOTPVerify}
                 disabled={loading || otpCode.length !== 6}
-                className="w-full bg-gradient-to-r from-teal-600 to-emerald-600 text-white py-4 rounded-xl font-semibold hover:shadow-lg transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+                className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-4 rounded-xl font-semibold hover:shadow-lg transition-all disabled:opacity-50 flex items-center justify-center gap-2"
               >
                 {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Verify & Login'}
               </button>
 
               <button
                 onClick={() => { setLoginStep('mobile'); setOtpCode(''); setError(''); }}
-                className="w-full text-center text-sm text-gray-500 hover:text-teal-600 flex items-center justify-center gap-1"
+                className="w-full text-center text-sm text-gray-500 hover:text-indigo-600 flex items-center justify-center gap-1"
               >
                 <ChevronLeft className="w-4 h-4" /> Change number
               </button>
@@ -461,8 +461,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuthSuc
           {/* Login Success */}
           {mode === 'login' && loginStep === 'success' && (
             <div className="text-center py-8">
-              <div className="bg-teal-100 rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-6">
-                <CheckCircle2 className="w-10 h-10 text-teal-600" />
+              <div className="bg-indigo-100 rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-6">
+                <CheckCircle2 className="w-10 h-10 text-indigo-600" />
               </div>
               <h3 className="text-xl font-bold text-gray-900 mb-2">Login Successful!</h3>
               <p className="text-gray-600">Welcome back!</p>
