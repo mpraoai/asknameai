@@ -13,7 +13,7 @@ import { calculateDriver, calculateConductor, calculateKua, createLoshuGrid, ana
 import { getCompatibility } from './utils/compatibility';
 import { analyzeNameSpelling, generateNameCorrectionsWithParents, generateCorrectedNamesWithCompleteFormula } from './utils/nameCorrection';
 import { generateBabyNameSuggestions } from './utils/babyNames';
-import { User, Baby, Calculator, Sparkles, LogOut, ShieldCheck } from 'lucide-react';
+import { User, Baby, Calculator, Sparkles, LogOut, ShieldCheck, Home } from 'lucide-react';
 import { UserProfile } from './services/authService';
 import { getCurrentProfile, signOut } from './services/authService';
 import { Campaign, PricingPlan, getActiveCampaigns, getPricingPlans } from './services/campaignService';
@@ -210,6 +210,15 @@ function App() {
 
   const renderAnalysisChoice = () => (
     <div className="max-w-4xl mx-auto">
+      <div className="text-center mb-8">
+        <button
+          onClick={handleBackToLanding}
+          className="text-indigo-600 hover:text-indigo-800 font-medium mb-6 inline-flex items-center gap-2"
+        >
+          <Home className="w-5 h-5" />
+          Back to Home
+        </button>
+      </div>
       <div className="text-center mb-12">
         <h2 className="text-3xl font-bold text-gray-800 mb-4">Choose Your Analysis</h2>
         <p className="text-lg text-gray-600">Select the type of numerological analysis you need</p>
@@ -221,7 +230,7 @@ function App() {
           className="bg-white rounded-2xl shadow-xl p-8 cursor-pointer hover:shadow-2xl transition-all transform hover:-translate-y-2 border-2 border-transparent hover:border-indigo-200"
         >
           <div className="text-center">
-            <div className="bg-gradient-to-br from-teal-100 to-emerald-100 rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-6">
+            <div className="bg-gradient-to-br from-indigo-100 to-purple-100 rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-6">
               <Calculator className="w-10 h-10 text-indigo-600" />
             </div>
             <h3 className="text-2xl font-bold text-gray-800 mb-4">Date of Birth & Name Analysis</h3>
@@ -235,7 +244,7 @@ function App() {
               <li>• Name spelling correction recommendations</li>
               <li>• Career compatibility analysis</li>
             </ul>
-            <button className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-teal-700 hover:to-emerald-700 text-white font-semibold py-3 px-6 rounded-lg transition-all">
+            <button className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-semibold py-3 px-6 rounded-lg transition-all">
               Analyze My Numerology
             </button>
           </div>
@@ -342,7 +351,15 @@ function App() {
 
         {currentStep === 'form' && (
           <div>
-            <div className="text-center mb-6">
+            <div className="text-center mb-6 flex items-center justify-center gap-6">
+              <button
+                onClick={handleBackToLanding}
+                className="text-indigo-600 hover:text-indigo-800 font-medium inline-flex items-center gap-2"
+              >
+                <Home className="w-4 h-4" />
+                Home
+              </button>
+              <span className="text-gray-300">|</span>
               <button
                 onClick={() => setCurrentStep('choice')}
                 className="text-indigo-600 hover:text-indigo-800 font-medium"
@@ -356,10 +373,17 @@ function App() {
 
         {currentStep === 'results' && personData && numerologyResult && (
           <div className="space-y-8">
-            <div className="text-center">
+            <div className="text-center flex flex-wrap items-center justify-center gap-3">
+              <button
+                onClick={handleBackToLanding}
+                className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white px-6 py-2 rounded-lg transition-all inline-flex items-center gap-2"
+              >
+                <Home className="w-4 h-4" />
+                Back to Home
+              </button>
               <button
                 onClick={handleStartOver}
-                className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-teal-700 hover:to-emerald-700 text-white px-6 py-2 rounded-lg transition-all mr-4"
+                className="bg-white border-2 border-indigo-200 text-indigo-700 hover:bg-indigo-50 px-6 py-2 rounded-lg transition-all"
               >
                 Start New Analysis
               </button>
