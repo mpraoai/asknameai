@@ -34,12 +34,6 @@ const UPI_APPS: UPIApp[] = [
   { id: 'paytm', name: 'Paytm', color: 'from-blue-400 to-blue-700', initials: 'P' },
 ];
 
-declare global {
-  interface Window {
-    Razorpay?: any;
-  }
-}
-
 export const CheckoutModal: React.FC<CheckoutModalProps> = ({
   isOpen,
   onClose,
@@ -62,20 +56,6 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
 
   const { price, hasDiscount, campaign } = getEffectivePrice(plan, campaigns);
   const savings = hasDiscount ? plan.original_price - price : 0;
-
-  const loadRazorpayScript = (): Promise<boolean> => {
-    return new Promise((resolve) => {
-      if (window.Razorpay) {
-        resolve(true);
-        return;
-      }
-      const script = document.createElement('script');
-      script.src = 'https://checkout.razorpay.com/v1/checkout.js';
-      script.onload = () => resolve(true);
-      script.onerror = () => resolve(false);
-      document.body.appendChild(script);
-    });
-  };
 
   const createRazorpayOrder = async (): Promise<{ order_id: string; key_id: string } | null> => {
     const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
@@ -143,11 +123,6 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
     setError('');
 
     try {
-      const scriptLoaded = await loadRazorpayScript();
-      if (!scriptLoaded) {
-        throw new Error('Failed to load Razorpay checkout script. Please check your internet connection.');
-      }
-
       const order = await createRazorpayOrder();
       if (!order) {
         throw new Error('Failed to create payment order. Please try again.');
@@ -158,68 +133,71 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
 
       const amountInPaise = Math.round(price * 100);
 
-      const options: any = {
-        key: order.key_id,
-        amount: amountInPaise,
-        currency: 'INR',
-        name: 'AskNameAI',
-        description: plan.name,
+      // Build standalone checkout URL — opens in a popup window to avoid iframe restrictions
+      const checkoutParams = new URLSearchParams({
         order_id: order.order_id,
-        prefill: {
-          name: userName || '',
-          email: userEmail || '',
-        },
-        method: {
-          upi: method === 'upi',
-          card: method === 'card',
-          netbanking: false,
-          wallet: false,
-        },
-        ...(method === 'upi' && selectedUPIApp && {
-          _: {
-            integration: 'react',
-            method: 'upi',
-            upi: {
-              flow: selectedUPIApp === 'googlepay' ? 'collect' : 'intent',
-            },
-          },
-        }),
-        handler: async (response: any) => {
-          if (response.razorpay_payment_id && response.razorpay_order_id && response.razorpay_signature) {
-            const verified = await verifyPayment(
-              response.razorpay_order_id,
-              response.razorpay_payment_id,
-              response.razorpay_signature
-            );
-            if (verified) {
-              setPaymentId(response.razorpay_payment_id);
-              setStep('success');
-            } else {
-              setError('Payment verification failed. Please contact support.');
-              setStep('error');
-            }
+        key_id: order.key_id,
+        amount: amountInPaise.toString(),
+        plan_name: plan.name,
+        user_name: userName || '',
+        user_email: userEmail || '',
+        method,
+      });
+
+      const checkoutUrl = `${window.location.origin}/checkout.html?${checkoutParams.toString()}`;
+
+      // Open popup window
+      const popup = window.open(
+        checkoutUrl,
+        'razorpay-checkout',
+        'width=500,height=650,scrollbars=yes,resizable=yes,status=yes,location=yes'
+      );
+
+      if (!popup) {
+        throw new Error('Popup blocked. Please allow popups for this site and try again.');
+      }
+
+      // Listen for payment result from popup
+      const messageHandler = async (event: MessageEvent) => {
+        if (event.data?.type !== 'razorpay-payment-result') return;
+
+        window.removeEventListener('message', messageHandler);
+
+        if (event.data.success && event.data.razorpay_payment_id) {
+          const verified = await verifyPayment(
+            event.data.razorpay_order_id,
+            event.data.razorpay_payment_id,
+            event.data.razorpay_signature
+          );
+          if (verified) {
+            setPaymentId(event.data.razorpay_payment_id);
+            setStep('success');
           } else {
-            setError('Payment was not completed.');
+            setError('Payment verification failed. Please contact support.');
             setStep('error');
           }
-        },
-        modal: {
-          ondismiss: () => {
-            setStep('payment_method');
-            setError('Payment cancelled. You can try again.');
-          },
-        },
-        theme: {
-          color: '#4F46E5',
-        },
+        } else {
+          setError(event.data.error || 'Payment was not completed.');
+          setStep('error');
+        }
       };
 
-      const rzp = new window.Razorpay(options);
-      rzp.on('payment.failed', (resp: any) => {
-        setError(resp.error?.description || 'Payment failed. Please try again.');
-        setStep('error');
-      });
-      rzp.open();
+      window.addEventListener('message', messageHandler);
+
+      // Poll to check if popup was closed manually
+      const popupCheck = setInterval(() => {
+        if (popup.closed) {
+          clearInterval(popupCheck);
+          window.removeEventListener('message', messageHandler);
+          setStep((prev) => {
+            if (prev === 'processing') {
+              setError('Payment window was closed. Please try again.');
+              return 'error';
+            }
+            return prev;
+          });
+        }
+      }, 500);
     } catch (err: any) {
       setError(err.message || 'Something went wrong. Please try again.');
       setStep('error');
@@ -684,3 +662,6 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
     </div>
   );
 };
+
+
+export { CheckoutModal }
