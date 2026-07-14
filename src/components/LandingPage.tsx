@@ -4,6 +4,7 @@ import {
   MessageSquare, Star, Shield, Zap, Clock, CheckCircle2,
   ChevronRight, Menu, X, Phone, Mail, MapPin, Facebook, Instagram
 } from 'lucide-react';
+import { NumerologyLogo } from './NumerologyLogo';
 import { Campaign } from '../services/campaignService';
 import { PricingPlan } from '../services/campaignService';
 import { getEffectivePrice } from '../services/campaignService';
@@ -13,6 +14,7 @@ interface LandingPageProps {
   campaigns: Campaign[];
   pricingPlans: PricingPlan[];
   onSelectService: (service: string) => void;
+  onSelectPlan: (plan: PricingPlan) => void;
   onOpenAuth: () => void;
   onOpenAdmin: () => void;
 }
@@ -21,6 +23,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
   campaigns,
   pricingPlans,
   onSelectService,
+  onSelectPlan,
   onOpenAuth,
   onOpenAdmin
 }) => {
@@ -113,12 +116,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
         scrolled ? 'bg-white shadow-lg py-3' : 'bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-800 py-5'
       }`}>
         <div className="container mx-auto px-4 flex items-center justify-between">
-          <div className="flex items-center gap-2 cursor-pointer" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
-            <Sparkles className={`w-7 h-7 ${scrolled ? 'text-indigo-600' : 'text-yellow-400'}`} />
-            <span className={`text-2xl font-bold ${scrolled ? 'text-gray-800' : 'text-white'}`}>
-              AskName<span className={scrolled ? 'text-indigo-600' : 'text-yellow-400'}>AI</span>
-            </span>
-          </div>
+          <NumerologyLogo size="md" variant={scrolled ? 'dark' : 'light'} onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} />
 
           {/* Desktop Nav */}
           <div className="hidden md:flex items-center gap-8">
@@ -354,7 +352,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                     ))}
                   </ul>
                   <button
-                    onClick={() => onSelectService('numerology')}
+                    onClick={() => onSelectPlan(plan)}
                     className={`w-full py-3 rounded-full font-semibold transition-all ${
                       plan.is_popular
                         ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white hover:shadow-lg'
@@ -430,7 +428,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
           <div className="grid md:grid-cols-4 gap-8 mb-12">
             <div>
               <div className="flex items-center gap-2 mb-4">
-                <Sparkles className="w-6 h-6 text-indigo-400" />
+                <NumerologyLogo size="md" variant="light" showText={false} />
                 <span className="text-xl font-bold">AskName<span className="text-indigo-400">AI</span></span>
               </div>
               <p className="text-sm text-gray-400 leading-relaxed">

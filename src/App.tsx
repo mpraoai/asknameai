@@ -9,6 +9,8 @@ import { AINameGenerator } from './components/AINameGenerator';
 import { LandingPage } from './components/LandingPage';
 import { AuthModal } from './components/AuthModal';
 import { AdminPanel } from './components/AdminPanel';
+import { CheckoutModal } from './components/CheckoutModal';
+import { NumerologyLogo } from './components/NumerologyLogo';
 import { calculateDriver, calculateConductor, calculateKua, createLoshuGrid, analyzePlanes } from './utils/numerologyCalculations';
 import { getCompatibility } from './utils/compatibility';
 import { analyzeNameSpelling, generateNameCorrectionsWithParents, generateCorrectedNamesWithCompleteFormula } from './utils/nameCorrection';
@@ -38,6 +40,10 @@ function App() {
   const [user, setUser] = useState<UserProfile | null>(null);
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [adminPanelOpen, setAdminPanelOpen] = useState(false);
+
+  // Checkout state
+  const [checkoutPlan, setCheckoutPlan] = useState<PricingPlan | null>(null);
+  const [checkoutOpen, setCheckoutOpen] = useState(false);
 
   // Pending service selection (when user clicks before logging in)
   const [pendingService, setPendingService] = useState<string | null>(null);
@@ -91,6 +97,17 @@ function App() {
     setAnalysisType(service as AnalysisType);
     setView('app');
     setCurrentStep('form');
+  };
+
+  const handleSelectPlan = (plan: PricingPlan) => {
+    if (!user) {
+      setPendingService('numerology');
+      setAuthModalOpen(true);
+      setCheckoutPlan(plan);
+      return;
+    }
+    setCheckoutPlan(plan);
+    setCheckoutOpen(true);
   };
 
   const handleAnalysisChoice = (type: AnalysisType) => {
@@ -286,6 +303,7 @@ function App() {
           campaigns={campaigns}
           pricingPlans={pricingPlans}
           onSelectService={handleSelectService}
+          onSelectPlan={handleSelectPlan}
           onOpenAuth={() => setAuthModalOpen(true)}
           onOpenAdmin={() => setAdminPanelOpen(true)}
         />
@@ -298,6 +316,14 @@ function App() {
           isOpen={adminPanelOpen}
           onClose={() => setAdminPanelOpen(false)}
         />
+        <CheckoutModal
+          isOpen={checkoutOpen}
+          onClose={() => setCheckoutOpen(false)}
+          plan={checkoutPlan}
+          campaigns={campaigns}
+          userEmail={user?.email}
+          userName={user ? `${user.first_name} ${user.last_name}` : undefined}
+        />
       </>
     );
   }
@@ -308,13 +334,7 @@ function App() {
       {/* Top bar with user info and navigation */}
       <div className="bg-white shadow-sm border-b border-gray-100 sticky top-0 z-40">
         <div className="container mx-auto px-4 py-3 flex items-center justify-between">
-          <button
-            onClick={handleBackToLanding}
-            className="flex items-center gap-2 text-gray-700 hover:text-indigo-600 transition-colors"
-          >
-            <Sparkles className="w-5 h-5 text-indigo-600" />
-            <span className="font-bold text-lg">AskName<span className="text-indigo-600">AI</span></span>
-          </button>
+          <NumerologyLogo size="md" variant="dark" onClick={handleBackToLanding} />
 
           <div className="flex items-center gap-4">
             {user && (
@@ -501,6 +521,14 @@ function App() {
       <AdminPanel
         isOpen={adminPanelOpen}
         onClose={() => setAdminPanelOpen(false)}
+      />
+      <CheckoutModal
+        isOpen={checkoutOpen}
+        onClose={() => setCheckoutOpen(false)}
+        plan={checkoutPlan}
+        campaigns={campaigns}
+        userEmail={user?.email}
+        userName={user ? `${user.first_name} ${user.last_name}` : undefined}
       />
     </div>
   );
