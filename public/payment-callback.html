@@ -47,9 +47,7 @@
       font-weight: 600;
       cursor: pointer;
       text-decoration: none;
-      transition: transform 0.2s, box-shadow 0.2s;
     }
-    .btn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(79,70,229,0.4); }
     .success { color: #16A34A; }
     .error { color: #DC2626; }
     .detail { font-size: 13px; color: #9CA3AF; margin-top: 12px; word-break: break-all; }
@@ -62,16 +60,14 @@
       <div class="title">Processing Payment...</div>
       <div class="message">Please wait while we confirm your payment.</div>
     </div>
-
     <div id="success-box" style="display:none">
       <div class="icon">&#10003;</div>
       <div class="title success">Payment Successful!</div>
-      <div class="message">Your payment has been verified. You can close this window and return to the app.</div>
+      <div class="message">You can close this window and return to the app.</div>
       <div class="detail" id="payment-id-detail"></div>
       <br />
       <button class="btn" onclick="window.close()">Close Window</button>
     </div>
-
     <div id="error-box" style="display:none">
       <div class="icon">&#9888;</div>
       <div class="title error">Payment Issue</div>
@@ -81,45 +77,27 @@
       <button class="btn" onclick="window.close()">Close Window</button>
     </div>
   </div>
-
   <script>
     (function() {
       const params = new URLSearchParams(window.location.search);
       const paymentId = params.get('razorpay_payment_id');
       const orderId = params.get('razorpay_order_id');
       const signature = params.get('razorpay_signature');
-      const linkId = params.get('payment_link_id');
 
-      // Send result to parent window (the Bolt app) via postMessage
       function notifyParent(result) {
         if (window.opener) {
-          window.opener.postMessage({
-            type: 'razorpay-payment-result',
-            ...result,
-          }, '*');
+          window.opener.postMessage({ type: 'razorpay-payment-result', ...result }, '*');
         }
       }
 
       if (paymentId && orderId && signature) {
-        // Payment succeeded — Razorpay redirected back with payment details
-        notifyParent({
-          success: true,
-          razorpay_payment_id: paymentId,
-          razorpay_order_id: orderId,
-          razorpay_signature: signature,
-        });
-
+        notifyParent({ success: true, razorpay_payment_id: paymentId, razorpay_order_id: orderId, razorpay_signature: signature });
         document.getElementById('loading').style.display = 'none';
         document.getElementById('success-box').style.display = 'block';
         document.getElementById('payment-id-detail').textContent = 'Payment ID: ' + paymentId;
       } else {
-        // Payment failed or cancelled
         const errorMsg = params.get('error') || params.get('error_description') || 'Payment was not completed';
-        notifyParent({
-          success: false,
-          error: errorMsg,
-        });
-
+        notifyParent({ success: false, error: errorMsg });
         document.getElementById('loading').style.display = 'none';
         document.getElementById('error-box').style.display = 'block';
         document.getElementById('error-msg').textContent = errorMsg;

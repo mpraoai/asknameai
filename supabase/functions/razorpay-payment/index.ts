@@ -62,71 +62,50 @@ Deno.serve(async (req: Request) => {
       const userName = body.user_name || "";
       const method = body.method || "all";
 
-      // Build callback URL — Razorpay will redirect here after payment
       const origin = body.origin || "https://bolt.new";
       const callbackUrl = `${origin}/payment-callback.html`;
-      const callbackId = `asknameai_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
 
       const linkBody: Record<string, unknown> = {
         amount: amountInPaise,
         currency: "INR",
         accept_partial: false,
         description: planName,
-        customer: {
-          name: userName,
-          email: userEmail,
-        },
-        notify: {
-          sms: false,
-          email: false,
-        },
+        customer: { name: userName, email: userEmail },
+        notify: { sms: false, email: false },
         reminder_enable: false,
         notes: {
           plan_id: planId,
           plan_name: planName,
           user_id: user.id,
           user_email: userEmail,
-          callback_id: callbackId,
         },
         callback_url: callbackUrl,
         callback_method: "get",
       };
 
-      // Restrict payment methods if specific method requested
       if (method === "upi") {
-        linkBody.options = {
-          order: {
-            method: "upi",
-          },
-        };
+        linkBody.options = { order: { method: "upi" } };
       } else if (method === "card") {
-        linkBody.options = {
-          order: {
-            method: "card",
-          },
-        };
+        linkBody.options = { order: { method: "card" } };
       }
 
       const linkResponse = await fetch("https://api.razorpay.com/v1/payment_links", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": authHeader,
-        },
+        headers: { "Content-Type": "application/json", "Authorization": authHeader },
         body: JSON.stringify(linkBody),
       });
 
       if (!linkResponse.ok) {
         const errData = await linkResponse.text();
         return new Response(
-          JSON.stringify({ error: "Failed to create Razorpay payment link", details: errData }),
+          JSON.stringify({ error: "Failed to create payment link", details: errData }),
           { status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
 
       const link = await linkResponse.json();
-
       const supabase = await getSupabaseClient();
+
       const { error: dbError } = await supabase.from("payments").insert({
         user_id: user.id,
         razorpay_order_id: link.order_id || link.id,
@@ -137,9 +116,7 @@ Deno.serve(async (req: Request) => {
         status: "created",
       });
 
-      if (dbError) {
-        console.error("DB insert error:", dbError.message);
-      }
+      if (dbError) console.error("DB insert error:", dbError.message);
 
       return new Response(
         JSON.stringify({
@@ -147,7 +124,6 @@ Deno.serve(async (req: Request) => {
           payment_link_url: link.short_url || link.url,
           order_id: link.order_id || link.id,
           key_id: razorpayKeyId,
-          callback_id: callbackId,
         }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
@@ -166,16 +142,13 @@ Deno.serve(async (req: Request) => {
       const data = new TextEncoder().encode(`${body.razorpay_order_id}|${body.razorpay_payment_id}`);
       const signatureBuffer = await crypto.subtle.sign("HMAC", expectedSignature, data);
       const expectedHex = Array.from(new Uint8Array(signatureBuffer))
-        .map((b) => b.toString(16).padStart(2, "0"))
-        .join("");
+        .map((b) => b.toString(16).padStart(2, "0")).join("");
 
       const isValid = expectedHex === body.razorpay_signature;
-
       const supabase = await getSupabaseClient();
 
       if (isValid) {
-        const { error: updateError } = await supabase
-          .from("payments")
+        await supabase.from("payments")
           .update({
             razorpay_payment_id: body.razorpay_payment_id,
             razorpay_signature: body.razorpay_signature,
@@ -185,17 +158,12 @@ Deno.serve(async (req: Request) => {
           .eq("razorpay_order_id", body.razorpay_order_id)
           .eq("user_id", user.id);
 
-        if (updateError) {
-          console.error("DB update error:", updateError.message);
-        }
-
         return new Response(
           JSON.stringify({ verified: true, message: "Payment verified successfully" }),
           { headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       } else {
-        await supabase
-          .from("payments")
+        await supabase.from("payments")
           .update({ status: "failed", updated_at: new Date().toISOString() })
           .eq("razorpay_order_id", body.razorpay_order_id)
           .eq("user_id", user.id);
@@ -207,31 +175,8 @@ Deno.serve(async (req: Request) => {
       }
     }
 
-    // --- CHECK PAYMENT STATUS ---
-    if (action === "check-status") {
-      const supabase = await getSupabaseClient();
-      const { data: payment } = await supabase
-        .from("payments")
-        .select("status, razorpay_payment_id, razorpay_order_id")
-        .eq("razorpay_order_id", body.order_id)
-        .eq("user_id", user.id)
-        .single();
-
-      if (payment) {
-        return new Response(
-          JSON.stringify({ status: payment.status, payment_id: payment.razorpay_payment_id }),
-          { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
-      }
-
-      return new Response(
-        JSON.stringify({ status: "not_found" }),
-        { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
-
     return new Response(
-      JSON.stringify({ error: "Invalid action. Use create-payment-link, verify-payment, or check-status." }),
+      JSON.stringify({ error: "Invalid action. Use create-payment-link or verify-payment." }),
       { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (err) {
