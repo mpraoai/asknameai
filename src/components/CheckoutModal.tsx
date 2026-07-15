@@ -85,19 +85,11 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
 
     const response = await fetch(`${supabaseUrl}/functions/v1/razorpay-payment`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`,
-        'apikey': supabaseAnonKey,
-      },
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`, 'apikey': supabaseAnonKey },
       body: JSON.stringify({
         action: 'create-payment-link',
-        plan_id: plan.id,
-        plan_name: plan.name,
-        amount: price,
-        user_email: userEmail,
-        user_name: userName,
-        method,
+        plan_id: plan.id, plan_name: plan.name, amount: price,
+        user_email: userEmail, user_name: userName, method,
         origin: window.location.origin,
       }),
     });
@@ -106,7 +98,6 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
       const errData = await response.json().catch(() => ({}));
       throw new Error(errData.error || `Failed to create payment link (${response.status})`);
     }
-
     const data = await response.json();
     return { url: data.payment_link_url, order_id: data.order_id };
   };
@@ -119,19 +110,12 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
 
     const response = await fetch(`${supabaseUrl}/functions/v1/razorpay-payment`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`,
-        'apikey': supabaseAnonKey,
-      },
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`, 'apikey': supabaseAnonKey },
       body: JSON.stringify({
         action: 'verify-payment',
-        razorpay_order_id: orderId,
-        razorpay_payment_id: paymentId,
-        razorpay_signature: signature,
+        razorpay_order_id: orderId, razorpay_payment_id: paymentId, razorpay_signature: signature,
       }),
     });
-
     if (!response.ok) return false;
     const data = await response.json();
     return data.verified === true;
@@ -146,10 +130,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
       setPaymentLinkUrl(result.url);
 
       const popup = window.open(result.url, 'razorpay-payment', 'width=500,height=650,scrollbars=yes,resizable=yes,status=yes,location=yes');
-
-      if (!popup) {
-        return;
-      }
+      if (!popup) return;
 
       const popupCheck = setInterval(() => {
         if (popup.closed) {
@@ -195,12 +176,9 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
             <div className="space-y-4">
               <h3 className="font-semibold text-gray-900 text-lg">Select Payment Method</h3>
 
-              <button
-                onClick={() => setPaymentMethod('upi')}
+              <button onClick={() => setPaymentMethod('upi')}
                 className={`w-full flex items-center gap-3 p-4 rounded-2xl border-2 transition-all ${
-                  paymentMethod === 'upi' ? 'border-brand-600 bg-brand-50' : 'border-gray-200 hover:border-gray-300'
-                }`}
-              >
+                  paymentMethod === 'upi' ? 'border-brand-600 bg-brand-50' : 'border-gray-200 hover:border-gray-300'}`}>
                 <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${paymentMethod === 'upi' ? 'bg-brand-600 text-white' : 'bg-gray-100 text-gray-600'}`}>
                   <Smartphone className="w-5 h-5" />
                 </div>
@@ -216,13 +194,9 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
               {paymentMethod === 'upi' && (
                 <div className="grid grid-cols-4 gap-3 pl-2">
                   {UPI_APPS.map((app) => (
-                    <button
-                      key={app.id}
-                      onClick={() => setSelectedUPIApp(app.id)}
+                    <button key={app.id} onClick={() => setSelectedUPIApp(app.id)}
                       className={`flex flex-col items-center gap-1 p-2 rounded-xl border-2 transition-all ${
-                        selectedUPIApp === app.id ? 'border-brand-600 bg-brand-50' : 'border-gray-200 hover:border-gray-300'
-                      }`}
-                    >
+                        selectedUPIApp === app.id ? 'border-brand-600 bg-brand-50' : 'border-gray-200 hover:border-gray-300'}`}>
                       <div className={`w-8 h-8 rounded-lg bg-gradient-to-br ${app.color} flex items-center justify-center text-white font-bold text-sm`}>
                         {app.initials}
                       </div>
@@ -232,12 +206,9 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                 </div>
               )}
 
-              <button
-                onClick={() => setPaymentMethod('card')}
+              <button onClick={() => setPaymentMethod('card')}
                 className={`w-full flex items-center gap-3 p-4 rounded-2xl border-2 transition-all ${
-                  paymentMethod === 'card' ? 'border-brand-600 bg-brand-50' : 'border-gray-200 hover:border-gray-300'
-                }`}
-              >
+                  paymentMethod === 'card' ? 'border-brand-600 bg-brand-50' : 'border-gray-200 hover:border-gray-300'}`}>
                 <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${paymentMethod === 'card' ? 'bg-brand-600 text-white' : 'bg-gray-100 text-gray-600'}`}>
                   <CreditCard className="w-5 h-5" />
                 </div>
@@ -250,16 +221,13 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                 </div>
               </button>
 
-              <button
-                onClick={handlePay}
-                className="w-full bg-gradient-to-r from-brand-600 to-purple-600 text-white font-semibold py-4 rounded-2xl hover:shadow-lg transition-all flex items-center justify-center gap-2"
-              >
+              <button onClick={handlePay}
+                className="w-full bg-gradient-to-r from-brand-600 to-purple-600 text-white font-semibold py-4 rounded-2xl hover:shadow-lg transition-all flex items-center justify-center gap-2">
                 Pay ₹{price} <ArrowRight className="w-5 h-5" />
               </button>
 
               <div className="flex items-center justify-center gap-2 text-gray-400 text-xs">
-                <Shield className="w-4 h-4" />
-                <span>Secured by Razorpay · 256-bit SSL Encryption</span>
+                <Shield className="w-4 h-4" /> <span>Secured by Razorpay · 256-bit SSL Encryption</span>
               </div>
             </div>
           )}
