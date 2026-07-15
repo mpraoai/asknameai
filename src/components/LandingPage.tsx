@@ -1,477 +1,309 @@
-import React, { useState, useEffect } from 'react';
-import {
-  Sparkles, Calculator, Baby, Smartphone, Building2, Hand,
-  MessageSquare, Star, Shield, Zap, Clock, CheckCircle2,
-  ChevronRight, Menu, X, Phone, Mail, MapPin, Facebook, Instagram
-} from 'lucide-react';
-import { NumerologyLogo } from './NumerologyLogo';
-import { Campaign } from '../services/campaignService';
-import { PricingPlan } from '../services/campaignService';
-import { getEffectivePrice } from '../services/campaignService';
-import { CampaignBanner } from './CampaignBanner';
+import React, { useState } from 'react';
+import { Sparkles, Search, Loader as Loader2, CircleAlert as AlertCircle, ArrowRight, Star, Shield, Check, TrendingUp, Baby, Smartphone, FileText, Zap, Award, Heart } from 'lucide-react';
+import { analyzeName, NameAnalysisResult } from '../services/numerologyService';
 
 interface LandingPageProps {
-  campaigns: Campaign[];
-  pricingPlans: PricingPlan[];
-  onSelectService: (service: string) => void;
-  onSelectPlan: (plan: PricingPlan) => void;
-  onOpenAuth: () => void;
-  onOpenAdmin: () => void;
+  onContinue: (name: string, dob: string, analysis: NameAnalysisResult) => void;
 }
 
-export const LandingPage: React.FC<LandingPageProps> = ({
-  campaigns,
-  pricingPlans,
-  onSelectService,
-  onSelectPlan,
-  onOpenAuth,
-  onOpenAdmin
-}) => {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
+export const LandingPage: React.FC<LandingPageProps> = ({ onContinue }) => {
+  const [name, setName] = useState('');
+  const [dob, setDob] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [analysis, setAnalysis] = useState<NameAnalysisResult | null>(null);
+  const [error, setError] = useState('');
 
-  useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 20);
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  const handleCheck = async () => {
+    if (!name.trim()) {
+      setError('Please enter your name');
+      return;
+    }
+    if (!dob) {
+      setError('Please enter your date of birth');
+      return;
+    }
 
-  const services = [
-    {
-      icon: Calculator,
-      title: 'AI Name Correction',
-      description: 'Chaldean numerology name alignment with 4-step verification. Get corrected name suggestions verified by expert numerologists.',
-      color: 'from-indigo-500 to-purple-600',
-      action: 'numerology',
-      price: '₹599'
-    },
-    {
-      icon: Baby,
-      title: 'Baby Name Suggestions',
-      description: 'Numerologically perfect baby names based on birth chart and religious preferences. Separate suggestions for boys & girls.',
-      color: 'from-pink-500 to-rose-600',
-      action: 'babynames',
-      price: 'Free'
-    },
-    {
-      icon: Smartphone,
-      title: 'Mobile Numerology',
-      description: 'Profession-specific lucky mobile number analysis with digit-by-digit compatibility and 5-step verification.',
-      color: 'from-amber-500 to-orange-600',
-      action: 'numerology',
-      price: '₹299'
-    },
-    {
-      icon: Building2,
-      title: 'Business Name Correction',
-      description: 'Optimize your business name and founder names for Royal Number alignment and maximum prosperity.',
-      color: 'from-blue-500 to-indigo-600',
-      action: 'numerology',
-      price: 'On Request'
-    },
-    {
-      icon: Hand,
-      title: 'Palmistry Analysis',
-      description: 'Upload your palm image for AI-powered reading of lines, mounts, and signs. 30+ page detailed report.',
-      color: 'from-purple-500 to-pink-600',
-      action: 'numerology',
-      price: 'On Request'
-    },
-    {
-      icon: MessageSquare,
-      title: 'AI Chatbot',
-      description: 'Your personal AI numerologist, available 24/7. Instant answers about career, love, health, and finances.',
-      color: 'from-indigo-500 to-blue-600',
-      action: 'numerology',
-      price: 'Free'
-    },
-  ];
+    setError('');
+    setLoading(true);
+    await new Promise(r => setTimeout(r, 800));
+    const result = analyzeName(name);
+    setAnalysis(result);
+    setLoading(false);
 
-  const freeTools = [
-    { icon: Calculator, title: 'Name Calculator', description: 'Calculate the numerology value of any name instantly' },
-    { icon: Star, title: 'Numerology Chart', description: 'Generate your Lo Shu grid and birth chart' },
-    { icon: Sparkles, title: 'Astrology Report', description: 'Basic Vedic astrology reading based on your birth details' },
-    { icon: Zap, title: 'BaZi Calculator', description: 'Chinese Four Pillars of Destiny analysis' },
-  ];
-
-  const features = [
-    { icon: Clock, title: 'Available 24/7', description: 'No appointments needed. Get instant numerological insights anytime.' },
-    { icon: Calculator, title: 'Deep Birth Chart Analysis', description: 'Mulank, Bhagyank, Lo Shu grid, and Raj Yogas analysis.' },
-    { icon: Shield, title: 'Vedic Science + Modern AI', description: 'Trained on classical numerology texts, verified by practising numerologists.' },
-    { icon: Zap, title: 'Instant Answers', description: 'Career, love, health, and financial insights in seconds.' },
-  ];
-
-  const scrollToSection = (id: string) => {
-    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
-    setMobileMenuOpen(false);
+    setTimeout(() => {
+      document.getElementById('name-preview')?.scrollIntoView({ behavior: 'smooth' });
+    }, 100);
   };
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Campaign Banner */}
-      {campaigns.length > 0 && <CampaignBanner campaigns={campaigns} />}
-
-      {/* Navigation */}
-      <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        scrolled ? 'bg-white shadow-lg py-3' : 'bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-800 py-5'
-      }`}>
-        <div className="container mx-auto px-4 flex items-center justify-between">
-          <NumerologyLogo size="md" variant={scrolled ? 'dark' : 'light'} onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} />
-
-          {/* Desktop Nav */}
-          <div className="hidden md:flex items-center gap-8">
-            <button onClick={() => scrollToSection('services')} className={`font-medium hover:text-yellow-400 transition-colors ${scrolled ? 'text-gray-700' : 'text-indigo-100'}`}>Services</button>
-            <button onClick={() => scrollToSection('tools')} className={`font-medium hover:text-yellow-400 transition-colors ${scrolled ? 'text-gray-700' : 'text-indigo-100'}`}>Free Tools</button>
-            <button onClick={() => scrollToSection('pricing')} className={`font-medium hover:text-yellow-400 transition-colors ${scrolled ? 'text-gray-700' : 'text-indigo-100'}`}>Pricing</button>
-            <button onClick={() => scrollToSection('about')} className={`font-medium hover:text-yellow-400 transition-colors ${scrolled ? 'text-gray-700' : 'text-indigo-100'}`}>About</button>
-            <button onClick={onOpenAdmin} className={`font-medium hover:text-yellow-400 transition-colors ${scrolled ? 'text-gray-700' : 'text-indigo-100'}`}>Admin</button>
-            <button
-              onClick={onOpenAuth}
-              className="bg-gradient-to-r from-yellow-400 to-orange-400 text-gray-900 px-6 py-2.5 rounded-full font-semibold hover:shadow-lg transition-all transform hover:scale-105"
-            >
-              Login / Sign Up
-            </button>
+      {/* Nav */}
+      <nav className="absolute top-0 left-0 right-0 z-20 px-6 py-5">
+        <div className="max-w-7xl mx-auto flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="w-10 h-10 bg-gradient-to-br from-brand-600 to-purple-600 rounded-xl flex items-center justify-center">
+              <Sparkles className="w-5 h-5 text-white" />
+            </div>
+            <span className="text-xl font-bold text-gray-900">AskName<span className="text-brand-600">AI</span></span>
           </div>
-
-          {/* Mobile Menu Button */}
-          <button className="md:hidden" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
-            {mobileMenuOpen ? <X className="w-6 h-6 text-white" /> : <Menu className="w-6 h-6 text-white" />}
-          </button>
+          <div className="hidden md:flex items-center gap-8 text-sm font-medium text-gray-600">
+            <a href="#features" className="hover:text-brand-600 transition-colors">Features</a>
+            <a href="#how-it-works" className="hover:text-brand-600 transition-colors">How It Works</a>
+            <a href="#plans" className="hover:text-brand-600 transition-colors">Plans</a>
+          </div>
         </div>
-
-        {/* Mobile Menu */}
-        {mobileMenuOpen && (
-          <div className="md:hidden bg-white shadow-lg rounded-b-2xl mx-4 mt-2 p-6 space-y-4 animate-fadeIn">
-            <button onClick={() => scrollToSection('services')} className="block w-full text-left font-medium text-gray-700 hover:text-indigo-600">Services</button>
-            <button onClick={() => scrollToSection('tools')} className="block w-full text-left font-medium text-gray-700 hover:text-indigo-600">Free Tools</button>
-            <button onClick={() => scrollToSection('pricing')} className="block w-full text-left font-medium text-gray-700 hover:text-indigo-600">Pricing</button>
-            <button onClick={() => scrollToSection('about')} className="block w-full text-left font-medium text-gray-700 hover:text-indigo-600">About</button>
-            <button onClick={onOpenAdmin} className="block w-full text-left font-medium text-gray-700 hover:text-indigo-600">Admin</button>
-            <button
-              onClick={onOpenAuth}
-              className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-6 py-3 rounded-full font-semibold"
-            >
-              Login / Sign Up
-            </button>
-          </div>
-        )}
       </nav>
 
-      {/* Hero Section */}
-      <section className="relative pt-32 pb-20 overflow-hidden bg-gradient-to-br from-indigo-600 via-purple-600 to-indigo-800">
-        <div className="absolute top-20 right-10 w-72 h-72 bg-purple-400 rounded-full opacity-20 blur-3xl"></div>
-        <div className="absolute bottom-10 left-10 w-96 h-96 bg-indigo-400 rounded-full opacity-20 blur-3xl"></div>
+      {/* Hero */}
+      <section className="relative pt-32 pb-20 px-4 overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-brand-50 via-white to-purple-50" />
+        <div className="absolute top-20 right-10 w-72 h-72 bg-brand-200/30 rounded-full blur-3xl" />
+        <div className="absolute bottom-10 left-10 w-96 h-96 bg-purple-200/30 rounded-full blur-3xl" />
 
-        <div className="container mx-auto px-4 relative z-10">
-          <div className="max-w-4xl mx-auto text-center">
-            <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm text-yellow-300 px-4 py-2 rounded-full text-sm font-medium mb-6 animate-fadeIn border border-white/20">
-              <Sparkles className="w-4 h-4" />
-              India's Most Trusted AI-Powered Numerology Service
-            </div>
-
-            <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-6 leading-tight">
-              Unlock Your Life's Blueprint with <span className="bg-gradient-to-r from-yellow-400 to-orange-400 bg-clip-text text-transparent">AI Numerology</span>
-            </h1>
-
-            <p className="text-lg md:text-xl text-indigo-100 mb-8 max-w-2xl mx-auto leading-relaxed">
-              Get instant name corrections, decade-long predictions, and personalised readings.
-              Ancient Chaldean numerology meets modern AI technology.
-            </p>
-
-            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
-              <button
-                onClick={() => onSelectService('numerology')}
-                className="bg-gradient-to-r from-yellow-400 to-orange-400 text-gray-900 px-8 py-4 rounded-full font-semibold text-lg hover:shadow-2xl transition-all transform hover:scale-105"
-              >
-                Start Free Name Check
-              </button>
-              <button
-                onClick={() => onSelectService('babynames')}
-                className="bg-white/10 backdrop-blur-sm border-2 border-white/30 text-white px-8 py-4 rounded-full font-semibold text-lg hover:bg-white/20 transition-all transform hover:scale-105"
-              >
-                Get Baby Name Suggestions
-              </button>
-            </div>
-
-            {/* Trust Indicators */}
-            <div className="grid grid-cols-3 gap-8 max-w-2xl mx-auto">
-              <div className="text-center">
-                <div className="text-3xl md:text-4xl font-bold text-yellow-400">1,00,000+</div>
-                <div className="text-sm text-indigo-200 mt-1">Names Checked</div>
+        <div className="relative max-w-6xl mx-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            {/* Left: Headline + Form */}
+            <div>
+              <div className="inline-flex items-center gap-2 bg-brand-100 text-brand-700 px-4 py-2 rounded-full text-sm font-medium mb-6 animate-fade-in">
+                <Zap className="w-4 h-4" />
+                Powered by Chaldean Numerology
               </div>
-              <div className="text-center">
-                <div className="text-3xl md:text-4xl font-bold text-yellow-400">21,000+</div>
-                <div className="text-sm text-indigo-200 mt-1">Reports Delivered</div>
-              </div>
-              <div className="text-center">
-                <div className="text-3xl md:text-4xl font-bold text-yellow-400">4.8★</div>
-                <div className="text-sm text-indigo-200 mt-1">Customer Rating</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+              <h1 className="text-5xl md:text-6xl font-bold text-gray-900 leading-tight mb-4">
+                Discover Your Name's <span className="bg-gradient-to-r from-brand-600 to-purple-600 bg-clip-text text-transparent">Hidden Power</span>
+              </h1>
+              <p className="text-lg text-gray-500 mb-8 leading-relaxed">
+                Get a free instant name numerology preview. Unlock complete name correction, mobile number analysis, and baby name suggestions.
+              </p>
 
-      {/* Services Section */}
-      <section id="services" className="py-20 bg-gradient-to-b from-purple-50 to-white">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-14">
-            <h2 className="text-3xl md:text-5xl font-bold text-gray-900 mb-4">Our AI-Powered Services</h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              From name corrections to decade-long predictions — each report is AI-generated and verified by expert numerologists.
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {services.map((service, idx) => {
-              const Icon = service.icon;
-              return (
-                <div
-                  key={idx}
-                  onClick={() => onSelectService(service.action)}
-                  className="bg-white rounded-2xl shadow-lg p-8 cursor-pointer hover:shadow-2xl transition-all transform hover:-translate-y-2 group border border-purple-100"
-                >
-                  <div className={`bg-gradient-to-br ${service.color} rounded-2xl w-16 h-16 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform`}>
-                    <Icon className="w-8 h-8 text-white" />
+              {/* Free Name Check Form */}
+              <div className="bg-white rounded-2xl shadow-xl p-6 border border-gray-100">
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">Your Full Name</label>
+                    <input
+                      type="text"
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      onKeyDown={(e) => e.key === 'Enter' && handleCheck()}
+                      placeholder="e.g., Rahul Kumar Sharma"
+                      className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-brand-500 focus:ring-2 focus:ring-brand-100 outline-none transition-all text-gray-900"
+                    />
                   </div>
-                  <h3 className="text-xl font-bold text-gray-900 mb-3">{service.title}</h3>
-                  <p className="text-gray-600 mb-4 leading-relaxed">{service.description}</p>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-semibold text-indigo-600">{service.price}</span>
-                    <ChevronRight className="w-5 h-5 text-gray-400 group-hover:text-indigo-600 group-hover:translate-x-1 transition-all" />
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">Date of Birth</label>
+                    <input
+                      type="date"
+                      value={dob}
+                      onChange={(e) => setDob(e.target.value)}
+                      className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-brand-500 focus:ring-2 focus:ring-brand-100 outline-none transition-all text-gray-900"
+                    />
                   </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </section>
 
-      {/* AI Numerologist Features */}
-      <section className="py-20 bg-gradient-to-br from-gray-900 via-indigo-900 to-purple-900 text-white">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-14">
-            <h2 className="text-3xl md:text-5xl font-bold mb-4">Your Personal AI Numerologist</h2>
-            <p className="text-lg text-indigo-200 max-w-2xl mx-auto">
-              Combining ancient Vedic wisdom with cutting-edge AI to deliver personalized numerological insights.
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {features.map((feature, idx) => {
-              const Icon = feature.icon;
-              return (
-                <div key={idx} className="bg-white/10 backdrop-blur-sm rounded-2xl p-8 border border-white/10 hover:bg-white/20 transition-all">
-                  <div className="bg-indigo-500/30 rounded-xl w-14 h-14 flex items-center justify-center mb-5">
-                    <Icon className="w-7 h-7 text-indigo-200" />
-                  </div>
-                  <h3 className="text-lg font-bold mb-2">{feature.title}</h3>
-                  <p className="text-indigo-200 text-sm leading-relaxed">{feature.description}</p>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </section>
-
-      {/* Free Tools Section */}
-      <section id="tools" className="py-20 bg-white">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-14">
-            <h2 className="text-3xl md:text-5xl font-bold text-gray-900 mb-4">Free Insight Tools</h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Powerful numerology tools available to everyone. No sign-up required.
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {freeTools.map((tool, idx) => {
-              const Icon = tool.icon;
-              return (
-                <div
-                  key={idx}
-                  onClick={() => onSelectService('numerology')}
-                  className="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-2xl p-8 cursor-pointer hover:shadow-xl transition-all transform hover:-translate-y-1 border border-indigo-100 hover:border-indigo-200"
-                >
-                  <div className="bg-indigo-100 rounded-xl w-12 h-12 flex items-center justify-center mb-4">
-                    <Icon className="w-6 h-6 text-indigo-600" />
-                  </div>
-                  <h3 className="text-lg font-bold text-gray-900 mb-2">{tool.title}</h3>
-                  <p className="text-sm text-gray-600">{tool.description}</p>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </section>
-
-      {/* Pricing Section */}
-      <section id="pricing" className="py-20 bg-gradient-to-b from-purple-50 to-white">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-14">
-            <h2 className="text-3xl md:text-5xl font-bold text-gray-900 mb-4">Pricing Plans</h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Transparent pricing for every need. Campaign discounts applied automatically during festive seasons.
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-6xl mx-auto">
-            {pricingPlans.map((plan) => {
-              const { price, hasDiscount, campaign } = getEffectivePrice(plan, campaigns);
-              return (
-                <div
-                  key={plan.id}
-                  className={`bg-white rounded-2xl p-8 shadow-lg relative transition-all hover:shadow-2xl transform hover:-translate-y-1 ${
-                    plan.is_popular ? 'ring-2 ring-indigo-600 lg:scale-105' : ''
-                  }`}
-                >
-                  {plan.is_popular && (
-                    <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-4 py-1.5 rounded-full text-sm font-semibold">
-                      Most Popular
+                  {error && (
+                    <div className="flex items-center gap-2 text-red-600 text-sm">
+                      <AlertCircle className="w-4 h-4" /> {error}
                     </div>
                   )}
-                  {hasDiscount && campaign && (
-                    <div className="absolute -top-3 right-3 bg-amber-500 text-white px-3 py-1 rounded-full text-xs font-bold">
-                      {campaign.discount_label}
-                    </div>
-                  )}
-                  <h3 className="text-xl font-bold text-gray-900 mb-2">{plan.name}</h3>
-                  <p className="text-sm text-gray-600 mb-6">{plan.description}</p>
-                  <div className="mb-6">
-                    {hasDiscount && (
-                      <span className="text-lg text-gray-400 line-through mr-2">₹{plan.original_price}</span>
-                    )}
-                    <span className="text-4xl font-bold text-gray-900">₹{price}</span>
-                  </div>
-                  <ul className="space-y-3 mb-8">
-                    {plan.features.map((feature, i) => (
-                      <li key={i} className="flex items-start gap-2 text-sm text-gray-700">
-                        <CheckCircle2 className="w-5 h-5 text-indigo-600 flex-shrink-0 mt-0.5" />
-                        {feature}
-                      </li>
-                    ))}
-                  </ul>
+
                   <button
-                    onClick={() => onSelectPlan(plan)}
-                    className={`w-full py-3 rounded-full font-semibold transition-all ${
-                      plan.is_popular
-                        ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white hover:shadow-lg'
-                        : 'bg-indigo-50 text-indigo-700 hover:bg-indigo-100'
-                    }`}
+                    onClick={handleCheck}
+                    disabled={loading}
+                    className="w-full bg-gradient-to-r from-brand-600 to-purple-600 text-white font-semibold py-4 rounded-xl hover:shadow-lg transition-all flex items-center justify-center gap-2 disabled:opacity-60"
                   >
-                    Get Started
+                    {loading ? (
+                      <><Loader2 className="w-5 h-5 animate-spin" /> Analyzing...</>
+                    ) : (
+                      <><Search className="w-5 h-5" /> Start Free Name Check</>
+                    )}
                   </button>
                 </div>
-              );
-            })}
+              </div>
+
+              <div className="flex items-center gap-6 mt-6 text-sm text-gray-400">
+                <div className="flex items-center gap-2"><Shield className="w-4 h-4" /> Secure & Private</div>
+                <div className="flex items-center gap-2"><Zap className="w-4 h-4" /> Instant Results</div>
+                <div className="flex items-center gap-2"><Award className="w-4 h-4" /> 10,000+ Checks</div>
+              </div>
+            </div>
+
+            {/* Right: Visual */}
+            <div className="hidden lg:block relative">
+              <div className="relative">
+                <div className="absolute inset-0 bg-gradient-to-br from-brand-600 to-purple-600 rounded-3xl blur-2xl opacity-20" />
+                <div className="relative bg-white rounded-3xl shadow-2xl p-8 border border-gray-100">
+                  <div className="text-center mb-6">
+                    <div className="w-20 h-20 bg-gradient-to-br from-brand-600 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                      <Star className="w-10 h-10 text-white fill-white" />
+                    </div>
+                    <h3 className="text-xl font-bold text-gray-900">Chaldean Numerology</h3>
+                    <p className="text-sm text-gray-500 mt-1">Ancient wisdom, modern insights</p>
+                  </div>
+
+                  <div className="space-y-3">
+                    {[
+                      { icon: <FileText className="w-5 h-5 text-brand-600" />, label: 'Name Correction', desc: 'Align your name for success' },
+                      { icon: <Smartphone className="w-5 h-5 text-brand-600" />, label: 'Mobile Numerology', desc: 'Check number compatibility' },
+                      { icon: <Baby className="w-5 h-5 text-brand-600" />, label: 'Baby Name Suggestions', desc: 'Find the perfect name' },
+                    ].map((item, i) => (
+                      <div key={i} className="flex items-center gap-3 bg-gray-50 rounded-xl p-3">
+                        <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center shadow-sm">
+                          {item.icon}
+                        </div>
+                        <div>
+                          <div className="font-semibold text-gray-900 text-sm">{item.label}</div>
+                          <div className="text-xs text-gray-500">{item.desc}</div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* About Section */}
-      <section id="about" className="py-20 bg-white">
-        <div className="container mx-auto px-4 max-w-4xl">
+      {/* Name Check Preview Result */}
+      {analysis && (
+        <section id="name-preview" className="py-16 px-4 bg-gradient-to-br from-brand-50 to-purple-50 animate-fade-in-up">
+          <div className="max-w-2xl mx-auto">
+            <div className="bg-white rounded-3xl shadow-xl p-8 border border-brand-100">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-xl font-bold text-gray-900">Your Name Analysis Preview</h3>
+                <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+                  analysis.isFavorable ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'
+                }`}>
+                  {analysis.isFavorable ? 'Favorable' : 'Needs Correction'}
+                </span>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4 mb-6">
+                <div className="bg-brand-50 rounded-xl p-4 text-center">
+                  <div className="text-xs text-gray-500 mb-1">Name Number</div>
+                  <div className="text-3xl font-bold text-brand-600">{analysis.nameNumber}</div>
+                </div>
+                <div className="bg-brand-50 rounded-xl p-4 text-center">
+                  <div className="text-xs text-gray-500 mb-1">Ruling Planet</div>
+                  <div className="text-xl font-bold text-gray-900">{analysis.planet}</div>
+                </div>
+              </div>
+
+              <div className="mb-4">
+                <div className="text-sm font-semibold text-gray-700 mb-2">Key Traits</div>
+                <div className="flex flex-wrap gap-2">
+                  {analysis.traits.map((trait, i) => (
+                    <span key={i} className="bg-brand-50 text-brand-700 px-3 py-1 rounded-full text-xs font-medium">
+                      {trait}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              <div className="bg-gray-50 rounded-xl p-4 mb-4">
+                <div className="text-sm text-gray-600 leading-relaxed">{analysis.suggestion}</div>
+              </div>
+
+              <div className="mb-6">
+                <div className="text-sm font-semibold text-gray-700 mb-2">Letter Values</div>
+                <div className="flex flex-wrap gap-2">
+                  {analysis.letterValues.map((lv, i) => (
+                    <div key={i} className="bg-gray-50 px-2 py-1 rounded-lg text-xs border border-gray-200">
+                      <span className="font-bold text-brand-600">{lv.letter}</span>
+                      <span className="text-gray-400 mx-1">=</span>
+                      <span className="text-gray-700">{lv.value}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-6">
+                <div className="flex items-start gap-2">
+                  <AlertCircle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
+                  <div className="text-sm text-amber-800">
+                    This is a preview. To see your complete name correction report, mobile number analysis, and baby name suggestions, select a plan below.
+                  </div>
+                </div>
+              </div>
+
+              <button
+                onClick={() => onContinue(name, dob, analysis)}
+                className="w-full bg-gradient-to-r from-brand-600 to-purple-600 text-white font-semibold py-4 rounded-xl hover:shadow-lg transition-all flex items-center justify-center gap-2"
+              >
+                View Plans & Continue <ArrowRight className="w-5 h-5" />
+              </button>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Features */}
+      <section id="features" className="py-20 px-4">
+        <div className="max-w-6xl mx-auto">
           <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-5xl font-bold text-gray-900 mb-4">About AskNameAI</h2>
-            <p className="text-lg text-gray-600 leading-relaxed">
-              AskNameAI combines ancient Chaldean numerology with modern AI technology to deliver
-              personalized numerological insights. Our system uses authentic Lo Shu grid methodology
-              and driver-conductor compatibility analysis to provide accurate name corrections and predictions.
-            </p>
+            <h2 className="text-3xl font-bold text-gray-900 mb-3">Everything You Get</h2>
+            <p className="text-gray-500 text-lg">Complete numerology insights in one platform</p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8">
-            <div className="text-center">
-              <div className="bg-indigo-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
-                <Shield className="w-8 h-8 text-indigo-600" />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {[
+              { icon: <FileText className="w-6 h-6" />, title: 'Name Correction', desc: 'Full Chaldean name analysis with letter-by-letter breakdown, compound numbers, and correction suggestions.' },
+              { icon: <Smartphone className="w-6 h-6" />, title: 'Mobile Numerology', desc: 'Check if your mobile number aligns with your birth numbers. Get compatibility scores and recommendations.' },
+              { icon: <Baby className="w-6 h-6" />, title: 'Baby Name Suggestions', desc: 'Generate numerology-aligned baby names with meanings, compatibility scores, and gender options.' },
+            ].map((feat, i) => (
+              <div key={i} className="bg-white rounded-2xl p-6 border border-gray-100 hover:shadow-lg transition-all">
+                <div className="w-12 h-12 bg-brand-100 rounded-xl flex items-center justify-center text-brand-600 mb-4">
+                  {feat.icon}
+                </div>
+                <h3 className="font-bold text-gray-900 mb-2">{feat.title}</h3>
+                <p className="text-sm text-gray-500 leading-relaxed">{feat.desc}</p>
               </div>
-              <h3 className="font-bold text-gray-900 mb-2">Authentic Methodology</h3>
-              <p className="text-sm text-gray-600">Based on authentic Chaldean numerology and Lo Shu grid methodology.</p>
-            </div>
-            <div className="text-center">
-              <div className="bg-purple-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
-                <Zap className="w-8 h-8 text-purple-600" />
-              </div>
-              <h3 className="font-bold text-gray-900 mb-2">AI-Powered</h3>
-              <p className="text-sm text-gray-600">Advanced AI algorithms trained on classical numerology texts.</p>
-            </div>
-            <div className="text-center">
-              <div className="bg-amber-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
-                <Star className="w-8 h-8 text-amber-600" />
-              </div>
-              <h3 className="font-bold text-gray-900 mb-2">Trusted by Thousands</h3>
-              <p className="text-sm text-gray-600">Serving customers across India, Australia, USA, and UAE.</p>
-            </div>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="py-20 bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-800 text-white">
-        <div className="container mx-auto px-4 text-center">
-          <h2 className="text-3xl md:text-5xl font-bold mb-6">Start Your Numerological Journey Today</h2>
-          <p className="text-lg text-indigo-100 mb-8 max-w-2xl mx-auto">
-            Begin with a free name check or dive into a detailed AI reading. Your destiny awaits.
-          </p>
-          <button
-            onClick={() => onSelectService('numerology')}
-            className="bg-gradient-to-r from-yellow-400 to-orange-400 text-gray-900 px-8 py-4 rounded-full font-semibold text-lg hover:shadow-2xl transition-all transform hover:scale-105"
-          >
-            Get Started Now
-          </button>
+      {/* How It Works */}
+      <section id="how-it-works" className="py-20 px-4 bg-gray-50">
+        <div className="max-w-4xl mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-gray-900 mb-3">How It Works</h2>
+            <p className="text-gray-500 text-lg">Simple 4-step process</p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+            {[
+              { num: '1', title: 'Free Name Check', desc: 'Enter your name & DOB for instant preview', icon: <Search className="w-5 h-5" /> },
+              { num: '2', title: 'Choose a Plan', desc: 'Select from our numerology report plans', icon: <Star className="w-5 h-5" /> },
+              { num: '3', title: 'OTP Login & Pay', desc: 'Secure login with mobile OTP & pay', icon: <Shield className="w-5 h-5" /> },
+              { num: '4', title: 'View Full Report', desc: 'Access complete reports sequentially', icon: <Check className="w-5 h-5" /> },
+            ].map((step, i) => (
+              <div key={i} className="text-center">
+                <div className="relative inline-block mb-4">
+                  <div className="w-16 h-16 bg-gradient-to-br from-brand-600 to-purple-600 rounded-2xl flex items-center justify-center text-white mx-auto">
+                    {step.icon}
+                  </div>
+                  <div className="absolute -top-2 -right-2 w-6 h-6 bg-white border-2 border-brand-600 rounded-full flex items-center justify-center text-xs font-bold text-brand-600">
+                    {step.num}
+                  </div>
+                </div>
+                <h3 className="font-bold text-gray-900 mb-1">{step.title}</h3>
+                <p className="text-sm text-gray-500">{step.desc}</p>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="bg-gray-900 text-white py-16">
-        <div className="container mx-auto px-4">
-          <div className="grid md:grid-cols-4 gap-8 mb-12">
-            <div>
-              <div className="flex items-center gap-2 mb-4">
-                <NumerologyLogo size="md" variant="light" showText={false} />
-                <span className="text-xl font-bold">AskName<span className="text-indigo-400">AI</span></span>
-              </div>
-              <p className="text-sm text-gray-400 leading-relaxed">
-                Ancient wisdom meets modern technology. Your trusted AI-powered numerology companion.
-              </p>
+      <footer className="py-10 px-4 border-t border-gray-100">
+        <div className="max-w-6xl mx-auto text-center">
+          <div className="flex items-center justify-center gap-2 mb-3">
+            <div className="w-8 h-8 bg-gradient-to-br from-brand-600 to-purple-600 rounded-lg flex items-center justify-center">
+              <Sparkles className="w-4 h-4 text-white" />
             </div>
-
-            <div>
-              <h4 className="font-semibold mb-4 text-indigo-400">Services</h4>
-              <ul className="space-y-2 text-sm text-gray-400">
-                <li><button onClick={() => onSelectService('numerology')} className="hover:text-indigo-400 transition-colors">Name Correction</button></li>
-                <li><button onClick={() => onSelectService('babynames')} className="hover:text-indigo-400 transition-colors">Baby Names</button></li>
-                <li><button onClick={() => onSelectService('numerology')} className="hover:text-indigo-400 transition-colors">Mobile Numerology</button></li>
-                <li><button onClick={() => onSelectService('numerology')} className="hover:text-indigo-400 transition-colors">Business Name</button></li>
-              </ul>
-            </div>
-
-            <div>
-              <h4 className="font-semibold mb-4 text-indigo-400">Support</h4>
-              <ul className="space-y-2 text-sm text-gray-400">
-                <li className="flex items-center gap-2"><Mail className="w-4 h-4" /> support@asknameai.com</li>
-                <li className="flex items-center gap-2"><Phone className="w-4 h-4" /> +91 91173 46555</li>
-                <li className="flex items-center gap-2"><Clock className="w-4 h-4" /> Mon - Sat, 10AM - 6PM</li>
-              </ul>
-            </div>
-
-            <div>
-              <h4 className="font-semibold mb-4 text-indigo-400">Legal</h4>
-              <ul className="space-y-2 text-sm text-gray-400">
-                <li>Privacy Policy</li>
-                <li>Refund Policy</li>
-                <li>Terms & Conditions</li>
-                <li className="flex items-center gap-2 mt-4">
-                  <Facebook className="w-5 h-5 hover:text-indigo-400 cursor-pointer transition-colors" />
-                  <Instagram className="w-5 h-5 hover:text-indigo-400 cursor-pointer transition-colors" />
-                </li>
-              </ul>
-            </div>
+            <span className="font-bold text-gray-900">AskNAMEAI</span>
           </div>
-
-          <div className="border-t border-gray-800 pt-8 text-center text-sm text-gray-500">
-            <p>&copy; 2025 AskNameAI. All rights reserved. Based on authentic Chaldean numerology and Lo Shu grid methodology.</p>
-          </div>
+          <p className="text-sm text-gray-400">Powered by Chaldean Numerology · Secure & Private</p>
         </div>
       </footer>
     </div>
