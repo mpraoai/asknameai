@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Phone, Loader2, KeyRound, ArrowLeft, Check, AlertCircle, Shield, Send } from 'lucide-react';
+import { Phone, Loader as Loader2, KeyRound, ArrowLeft, Check, CircleAlert as AlertCircle, Shield, Send } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 
 interface OTPAuthenticationProps {

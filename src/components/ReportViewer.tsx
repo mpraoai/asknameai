@@ -1,8 +1,5 @@
 import React, { useState } from 'react';
-import {
-  Check, ArrowRight, ArrowLeft, FileText, Smartphone, Baby, Download,
-  Star, TrendingUp, AlertTriangle, Sparkles, Grid, Phone, User, Calendar,
-} from 'lucide-react';
+import { Check, ArrowRight, ArrowLeft, FileText, Smartphone, Baby, Download, Star, TrendingUp, TriangleAlert as AlertTriangle, Sparkles, Grid2x2 as Grid, Phone, User, Calendar } from 'lucide-react';
 import {
   analyzeName, analyzeMobileNumber, calculateMulank, calculateBhagyank,
   calculateLoShuGrid, getNumberInfo, generateBabyNameSuggestions,

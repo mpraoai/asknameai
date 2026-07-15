@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Check, Loader2, CreditCard, Smartphone, Shield, ArrowRight, AlertCircle } from 'lucide-react';
+import { X, Check, Loader as Loader2, CreditCard, Smartphone, Shield, ArrowRight, CircleAlert as AlertCircle } from 'lucide-react';
 import { PricingPlan, Campaign, getEffectivePrice } from '../services/campaignService';
 import { supabase } from '../lib/supabase';
 

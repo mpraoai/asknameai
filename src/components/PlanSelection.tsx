@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Check, Star, ArrowRight, Loader2, Tag, ArrowLeft } from 'lucide-react';
+import { Check, Star, ArrowRight, Loader as Loader2, Tag, ArrowLeft } from 'lucide-react';
 import { PricingPlan, Campaign, fetchPricingPlans, fetchActiveCampaign, getEffectivePrice } from '../services/campaignService';
 
 interface PlanSelectionProps {

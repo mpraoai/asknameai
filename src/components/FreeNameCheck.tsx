@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, Loader2, Sparkles, AlertCircle, Check, ArrowRight } from 'lucide-react';
+import { Search, Loader as Loader2, Sparkles, CircleAlert as AlertCircle, Check, ArrowRight } from 'lucide-react';
 import { analyzeName, NameAnalysisResult } from '../services/numerologyService';
 
 interface FreeNameCheckProps {
