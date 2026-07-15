@@ -51,46 +51,87 @@ Deno.serve(async (req: Request) => {
 
     const body = await req.json();
     const action = body.action;
+    const authHeader = "Basic " + btoa(`${razorpayKeyId}:${razorpayKeySecret}`);
 
-    // --- CREATE ORDER ---
-    if (action === "create-order") {
+    // --- CREATE PAYMENT LINK ---
+    if (action === "create-payment-link") {
       const amountInPaise = Math.round(body.amount * 100);
+      const planName = body.plan_name || "AskNameAI Plan";
+      const planId = body.plan_id || "";
+      const userEmail = body.user_email || user.email || "";
+      const userName = body.user_name || "";
+      const method = body.method || "all";
 
-      const orderResponse = await fetch("https://api.razorpay.com/v1/orders", {
+      // Build callback URL — Razorpay will redirect here after payment
+      const origin = body.origin || "https://bolt.new";
+      const callbackUrl = `${origin}/payment-callback.html`;
+      const callbackId = `asknameai_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+
+      const linkBody: Record<string, unknown> = {
+        amount: amountInPaise,
+        currency: "INR",
+        accept_partial: false,
+        description: planName,
+        customer: {
+          name: userName,
+          email: userEmail,
+        },
+        notify: {
+          sms: false,
+          email: false,
+        },
+        reminder_enable: false,
+        notes: {
+          plan_id: planId,
+          plan_name: planName,
+          user_id: user.id,
+          user_email: userEmail,
+          callback_id: callbackId,
+        },
+        callback_url: callbackUrl,
+        callback_method: "get",
+      };
+
+      // Restrict payment methods if specific method requested
+      if (method === "upi") {
+        linkBody.options = {
+          order: {
+            method: "upi",
+          },
+        };
+      } else if (method === "card") {
+        linkBody.options = {
+          order: {
+            method: "card",
+          },
+        };
+      }
+
+      const linkResponse = await fetch("https://api.razorpay.com/v1/payment_links", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": "Basic " + btoa(`${razorpayKeyId}:${razorpayKeySecret}`),
+          "Authorization": authHeader,
         },
-        body: JSON.stringify({
-          amount: amountInPaise,
-          currency: "INR",
-          receipt: `receipt_${Date.now()}`,
-          notes: {
-            plan_id: body.plan_id,
-            plan_name: body.plan_name,
-            user_email: body.user_email || "",
-            user_id: user.id,
-          },
-        }),
+        body: JSON.stringify(linkBody),
       });
 
-      if (!orderResponse.ok) {
-        const errData = await orderResponse.text();
+      if (!linkResponse.ok) {
+        const errData = await linkResponse.text();
         return new Response(
-          JSON.stringify({ error: "Failed to create Razorpay order", details: errData }),
+          JSON.stringify({ error: "Failed to create Razorpay payment link", details: errData }),
           { status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
 
-      const order = await orderResponse.json();
+      const link = await linkResponse.json();
 
       const supabase = await getSupabaseClient();
       const { error: dbError } = await supabase.from("payments").insert({
         user_id: user.id,
-        razorpay_order_id: order.id,
-        plan_id: body.plan_id,
-        plan_name: body.plan_name,
+        razorpay_order_id: link.order_id || link.id,
+        plan_id: planId || null,
+        plan_name: planName,
         amount: amountInPaise,
         currency: "INR",
         status: "created",
@@ -102,10 +143,11 @@ Deno.serve(async (req: Request) => {
 
       return new Response(
         JSON.stringify({
-          order_id: order.id,
-          amount: order.amount,
-          currency: order.currency,
+          payment_link_id: link.id,
+          payment_link_url: link.short_url || link.url,
+          order_id: link.order_id || link.id,
           key_id: razorpayKeyId,
+          callback_id: callbackId,
         }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
@@ -165,8 +207,31 @@ Deno.serve(async (req: Request) => {
       }
     }
 
+    // --- CHECK PAYMENT STATUS ---
+    if (action === "check-status") {
+      const supabase = await getSupabaseClient();
+      const { data: payment } = await supabase
+        .from("payments")
+        .select("status, razorpay_payment_id, razorpay_order_id")
+        .eq("razorpay_order_id", body.order_id)
+        .eq("user_id", user.id)
+        .single();
+
+      if (payment) {
+        return new Response(
+          JSON.stringify({ status: payment.status, payment_id: payment.razorpay_payment_id }),
+          { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      return new Response(
+        JSON.stringify({ status: "not_found" }),
+        { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
     return new Response(
-      JSON.stringify({ error: "Invalid action. Use create-order or verify-payment." }),
+      JSON.stringify({ error: "Invalid action. Use create-payment-link, verify-payment, or check-status." }),
       { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (err) {
