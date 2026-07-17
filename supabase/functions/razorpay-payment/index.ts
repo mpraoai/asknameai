@@ -6,34 +6,11 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Client-Info, Apikey",
 };
 
-interface CreateOrderRequest {
-  plan_id: string;
-  plan_name: string;
-  amount: number;
-  user_email: string;
-  user_name: string;
-}
-
-interface VerifyPaymentRequest {
-  razorpay_order_id: string;
-  razorpay_payment_id: string;
-  razorpay_signature: string;
-  plan_id: string;
-  plan_name: string;
-  amount: number;
-}
-
-async function getSupabaseClient(req: Request) {
+async function getSupabaseClient() {
   const { createClient } = await import("npm:@supabase/supabase-js@2.75.0");
-  const authHeader = req.headers.get("Authorization") ?? "";
   const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
-  const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY") ?? "";
   const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
-
-  // Use service role for database writes (payments table)
-  return createClient(supabaseUrl, serviceRoleKey, {
-    global: { headers: { Authorization: authHeader } },
-  });
+  return createClient(supabaseUrl, serviceRoleKey);
 }
 
 async function getUserFromRequest(req: Request) {
@@ -54,15 +31,12 @@ Deno.serve(async (req: Request) => {
   }
 
   try {
-    const url = new URL(req.url);
-    const path = url.pathname.split("/").pop();
-
     const razorpayKeyId = Deno.env.get("RAZORPAY_KEY_ID");
     const razorpayKeySecret = Deno.env.get("RAZORPAY_KEY_SECRET");
 
     if (!razorpayKeyId || !razorpayKeySecret) {
       return new Response(
-        JSON.stringify({ error: "Razorpay keys not configured. Please set RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET secrets." }),
+        JSON.stringify({ error: "Razorpay keys not configured" }),
         { status: 503, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
@@ -75,11 +49,13 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    if (path === "create-order") {
-      const body: CreateOrderRequest = await req.json();
+    const body = await req.json();
+    const action = body.action;
+
+    // --- CREATE ORDER ---
+    if (action === "create-order") {
       const amountInPaise = Math.round(body.amount * 100);
 
-      // Create Razorpay order
       const orderResponse = await fetch("https://api.razorpay.com/v1/orders", {
         method: "POST",
         headers: {
@@ -93,7 +69,7 @@ Deno.serve(async (req: Request) => {
           notes: {
             plan_id: body.plan_id,
             plan_name: body.plan_name,
-            user_email: body.user_email,
+            user_email: body.user_email || "",
             user_id: user.id,
           },
         }),
@@ -109,8 +85,7 @@ Deno.serve(async (req: Request) => {
 
       const order = await orderResponse.json();
 
-      // Save payment record in database
-      const supabase = await getSupabaseClient(req);
+      const supabase = await getSupabaseClient();
       const { error: dbError } = await supabase.from("payments").insert({
         user_id: user.id,
         razorpay_order_id: order.id,
@@ -122,7 +97,7 @@ Deno.serve(async (req: Request) => {
       });
 
       if (dbError) {
-        console.error("DB insert error:", dbError);
+        console.error("DB insert error:", dbError.message);
       }
 
       return new Response(
@@ -136,10 +111,8 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    if (path === "verify-payment") {
-      const body: VerifyPaymentRequest = await req.json();
-
-      // Verify signature using HMAC SHA256
+    // --- VERIFY PAYMENT ---
+    if (action === "verify-payment") {
       const expectedSignature = await crypto.subtle.importKey(
         "raw",
         new TextEncoder().encode(razorpayKeySecret),
@@ -156,10 +129,9 @@ Deno.serve(async (req: Request) => {
 
       const isValid = expectedHex === body.razorpay_signature;
 
-      const supabase = await getSupabaseClient(req);
+      const supabase = await getSupabaseClient();
 
       if (isValid) {
-        // Update payment record
         const { error: updateError } = await supabase
           .from("payments")
           .update({
@@ -172,7 +144,7 @@ Deno.serve(async (req: Request) => {
           .eq("user_id", user.id);
 
         if (updateError) {
-          console.error("DB update error:", updateError);
+          console.error("DB update error:", updateError.message);
         }
 
         return new Response(
@@ -194,11 +166,11 @@ Deno.serve(async (req: Request) => {
     }
 
     return new Response(
-      JSON.stringify({ error: "Invalid endpoint. Use create-order or verify-payment." }),
-      { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      JSON.stringify({ error: "Invalid action. Use create-order or verify-payment." }),
+      { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (err) {
-    console.error("Edge function error:", err);
+    console.error("Edge function error:", err.message || err);
     return new Response(
       JSON.stringify({ error: err.message || "Internal server error" }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
