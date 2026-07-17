@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { LandingPage } from './components/LandingPage';
+import { NumerologyPage } from './components/NumerologyPage';
+import { BabyNamesPage } from './components/BabyNamesPage';
 import { Campaign, PricingPlan } from './services/campaignService';
 
 export const App: React.FC = () => {
-  const [selectedService, setSelectedService] = useState<string | null>(null);
+  const [view, setView] = useState<'landing' | 'numerology' | 'babynames'>('landing');
   const [selectedPlan, setSelectedPlan] = useState<PricingPlan | null>(null);
   const [showAuth, setShowAuth] = useState(false);
   const [showAdmin, setShowAdmin] = useState(false);
@@ -46,23 +48,38 @@ export const App: React.FC = () => {
   ];
 
   const handleSelectService = (service: string) => {
-    setSelectedService(service);
+    if (service === 'babynames') {
+      setView('babynames');
+    } else {
+      setView('numerology');
+    }
   };
 
   const handleSelectPlan = (plan: PricingPlan) => {
     setSelectedPlan(plan);
   };
 
+  const handleBack = () => {
+    setView('landing');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  if (view === 'numerology') {
+    return <NumerologyPage onBack={handleBack} />;
+  }
+
+  if (view === 'babynames') {
+    return <BabyNamesPage onBack={handleBack} />;
+  }
+
   return (
-    <>
-      <LandingPage
-        campaigns={campaigns}
-        pricingPlans={pricingPlans}
-        onSelectService={handleSelectService}
-        onSelectPlan={handleSelectPlan}
-        onOpenAuth={() => setShowAuth(true)}
-        onOpenAdmin={() => setShowAdmin(true)}
-      />
-    </>
+    <LandingPage
+      campaigns={campaigns}
+      pricingPlans={pricingPlans}
+      onSelectService={handleSelectService}
+      onSelectPlan={handleSelectPlan}
+      onOpenAuth={() => setShowAuth(true)}
+      onOpenAdmin={() => setShowAdmin(true)}
+    />
   );
 };
