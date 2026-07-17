@@ -52,8 +52,6 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
   const [orderId, setOrderId] = useState('');
   const [razorpayKey, setRazorpayKey] = useState('');
 
-  const [checkoutUrl, setCheckoutUrl] = useState('');
-
   if (!isOpen || !plan) return null;
 
   const { price, hasDiscount, campaign } = getEffectivePrice(plan, campaigns);
@@ -61,19 +59,16 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
 
   const createRazorpayOrder = async (): Promise<{ order_id: string; key_id: string } | null> => {
     const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-    const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
     const { data: sessionData } = await supabase.auth.getSession();
     const token = sessionData.session?.access_token || '';
 
-    const response = await fetch(`${supabaseUrl}/functions/v1/razorpay-payment`, {
+    const response = await fetch(`${supabaseUrl}/functions/v1/razorpay-payment/create-order`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${token}`,
-        'apikey': supabaseAnonKey,
       },
       body: JSON.stringify({
-        action: 'create-order',
         plan_id: plan.id,
         plan_name: plan.name,
         amount: price,
@@ -97,19 +92,16 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
     razorpaySignature: string
   ): Promise<boolean> => {
     const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-    const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
     const { data: sessionData } = await supabase.auth.getSession();
     const token = sessionData.session?.access_token || '';
 
-    const response = await fetch(`${supabaseUrl}/functions/v1/razorpay-payment`, {
+    const response = await fetch(`${supabaseUrl}/functions/v1/razorpay-payment/verify-payment`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${token}`,
-        'apikey': supabaseAnonKey,
       },
       body: JSON.stringify({
-        action: 'verify-payment',
         razorpay_order_id: razorpayOrderId,
         razorpay_payment_id: razorpayPaymentId,
         razorpay_signature: razorpaySignature,
@@ -153,7 +145,6 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
       });
 
       const checkoutUrl = `${window.location.origin}/checkout.html?${checkoutParams.toString()}`;
-      setCheckoutUrl(checkoutUrl);
 
       // Open popup window
       const popup = window.open(
@@ -580,17 +571,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
               <Loader2 className="w-16 h-16 text-indigo-600 animate-spin mx-auto mb-6" />
               <h3 className="text-xl font-bold text-gray-900 mb-2">Processing Payment...</h3>
               <p className="text-gray-500">Please don't close this window</p>
-              <p className="text-xs text-gray-400 mt-2">A secure payment window should have opened. If it didn't,</p>
-              {checkoutUrl && (
-                <a
-                  href={checkoutUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-indigo-600 underline text-sm mt-1 inline-block"
-                >
-                  click here to open payment
-                </a>
-              )}
+              <p className="text-xs text-gray-400 mt-2">Redirecting to Razorpay secure checkout</p>
             </div>
           )}
 
@@ -681,3 +662,6 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
     </div>
   );
 };
+
+
+export { CheckoutModal }
