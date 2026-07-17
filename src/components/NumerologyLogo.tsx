@@ -1,41 +1,47 @@
 import React from 'react';
+import { Grid3x3, Sparkles } from 'lucide-react';
 
-interface NumerologyLogoProps {
-  size?: 'sm' | 'md' | 'lg';
+interface LogoProps {
+  size?: 'sm' | 'md' | 'lg' | 'xl';
   variant?: 'light' | 'dark';
   showText?: boolean;
   onClick?: () => void;
 }
 
-export const NumerologyLogo: React.FC<NumerologyLogoProps> = ({
+const sizeMap = {
+  sm: { icon: 'w-5 h-5', grid: 'w-3.5 h-3.5', text: 'text-lg', spark: 'w-3 h-3' },
+  md: { icon: 'w-7 h-7', grid: 'w-5 h-5', text: 'text-2xl', spark: 'w-3.5 h-3.5' },
+  lg: { icon: 'w-8 h-8', grid: 'w-6 h-6', text: 'text-3xl', spark: 'w-4 h-4' },
+  xl: { icon: 'w-12 h-12', grid: 'w-9 h-9', text: 'text-5xl', spark: 'w-6 h-6' },
+};
+
+export const NumerologyLogo: React.FC<LogoProps> = ({
   size = 'md',
-  variant = 'light',
+  variant = 'dark',
   showText = true,
   onClick,
 }) => {
-  const dimensions = {
-    sm: { box: 'w-8 h-8', text: 'text-lg', icon: 18 },
-    md: { box: 'w-10 h-10', text: 'text-xl', icon: 24 },
-    lg: { box: 'w-14 h-14', text: 'text-2xl', icon: 32 },
-  };
-
-  const d = dimensions[size];
-  const textColor = variant === 'light' ? 'text-white' : 'text-gray-900';
-  const subColor = variant === 'light' ? 'text-indigo-200' : 'text-indigo-600';
+  const s = sizeMap[size];
+  const accentColor = variant === 'light' ? 'text-yellow-400' : 'text-indigo-600';
+  const textColor = variant === 'light' ? 'text-white' : 'text-gray-800';
+  const subColor = variant === 'light' ? 'text-yellow-400' : 'text-indigo-500';
 
   return (
-    <div className="flex items-center gap-2 cursor-pointer" onClick={onClick}>
-      <div className={`${d.box} rounded-xl bg-gradient-to-br from-indigo-500 via-purple-500 to-indigo-700 flex items-center justify-center shadow-lg`}>
-        <svg width={d.icon} height={d.icon} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M12 2L2 7l10 5 10-5-10-5z" stroke="white" strokeWidth="1.5" strokeLinejoin="round" />
-          <path d="M2 17l10 5 10-5M2 12l10 5 10-5" stroke="white" strokeWidth="1.5" strokeLinejoin="round" opacity="0.7" />
-        </svg>
+    <div
+      className={`flex items-center gap-2 ${onClick ? 'cursor-pointer' : ''}`}
+      onClick={onClick}
+    >
+      {/* Numerology-specific icon: Lo Shu Grid + Star = numerological calculation */}
+      <div className="relative flex items-center justify-center">
+        <div className={`relative ${s.icon} flex items-center justify-center`}>
+          <Grid3x3 className={`${s.grid} ${accentColor}`} strokeWidth={2.5} />
+          <Sparkles className={`${s.spark} ${variant === 'light' ? 'text-orange-400' : 'text-purple-500'} absolute -top-1 -right-1`} />
+        </div>
       </div>
       {showText && (
-        <div className="flex flex-col leading-none">
-          <span className={`${d.text} font-bold ${textColor}`}>AskName<span className="text-indigo-400">AI</span></span>
-          <span className={`text-[10px] ${subColor}`}>AI-Powered Numerology</span>
-        </div>
+        <span className={`${s.text} font-bold ${textColor} tracking-tight`}>
+          AskName<span className={subColor}>AI</span>
+        </span>
       )}
     </div>
   );
