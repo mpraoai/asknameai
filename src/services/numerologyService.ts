@@ -25,14 +25,18 @@ export function reduceToSingleDigit(num: number): number {
 export function calculateNameNumber(name: string): number {
   const cleanName = name.replace(/[^a-zA-Z]/g, '');
   let total = 0;
-  for (const letter of cleanName) total += getChaldeanValue(letter);
+  for (const letter of cleanName) {
+    total += getChaldeanValue(letter);
+  }
   return reduceToSingleDigit(total);
 }
 
 export function calculateCompoundNumber(name: string): number {
   const cleanName = name.replace(/[^a-zA-Z]/g, '');
   let total = 0;
-  for (const letter of cleanName) total += getChaldeanValue(letter);
+  for (const letter of cleanName) {
+    total += getChaldeanValue(letter);
+  }
   return total;
 }
 
@@ -63,9 +67,19 @@ export function getNumberInfo(num: number): NumerologyNumberInfo {
   return NUMBER_INFO[num] || NUMBER_INFO[reduceToSingleDigit(num)];
 }
 
+// Lo Shu Grid
 export function calculateLoShuGrid(dob: string): number[][] {
   const digits = dob.replace(/[^0-9]/g, '').split('').map(Number);
   const grid: number[][] = [[0, 0, 0], [0, 0, 0], [0, 0, 0]];
+  // Lo Shu positions: 3-1-9 / 4-(5)-2 / 8-6-4 mapped to grid
+  const positions: Record<number, [number, number]> = {
+    1: [1, 2], 2: [1, 1], 3: [0, 0], 4: [0, 2], 5: [1, 1],
+    6: [2, 1], 7: [0, 1], 8: [2, 0], 9: [0, 2],
+  };
+  // Correct Lo Shu mapping:
+  // 4 9 2
+  // 3 5 7
+  // 8 1 6
   const loShuPositions: Record<number, [number, number]> = {
     1: [2, 1], 2: [0, 2], 3: [1, 0], 4: [2, 0], 5: [1, 1],
     6: [2, 2], 7: [1, 2], 8: [0, 0], 9: [0, 1],
@@ -78,12 +92,14 @@ export function calculateLoShuGrid(dob: string): number[][] {
   return grid;
 }
 
+// Mulank (Driver Number) from day of birth
 export function calculateMulank(dob: string): number {
   const parts = dob.split(/[-\/]/);
   const day = parseInt(parts[0] || parts[2] || '1');
   return reduceToSingleDigit(day);
 }
 
+// Bhagyank (Destiny Number) from full DOB
 export function calculateBhagyank(dob: string): number {
   const digits = dob.replace(/[^0-9]/g, '').split('').map(Number);
   const total = digits.reduce((a, b) => a + b, 0);
@@ -114,6 +130,7 @@ export function analyzeName(name: string): NameAnalysisResult {
     letterValues.push({ letter, value: getChaldeanValue(letter) });
   }
 
+  // Favorable numbers: 1, 5, 6 are generally favorable in Chaldean
   const favorableNumbers = [1, 3, 5, 6];
   const isFavorable = favorableNumbers.includes(nameNumber);
 
@@ -125,8 +142,15 @@ export function analyzeName(name: string): NameAnalysisResult {
   }
 
   return {
-    name: cleanName, nameNumber, compoundNumber, planet: info.planet,
-    traits: info.traits, luckyColors: info.lucky, isFavorable, suggestion, letterValues,
+    name: cleanName,
+    nameNumber,
+    compoundNumber,
+    planet: info.planet,
+    traits: info.traits,
+    luckyColors: info.lucky,
+    isFavorable,
+    suggestion,
+    letterValues,
   };
 }
 
@@ -163,6 +187,7 @@ export function analyzeMobileNumber(mobile: string, dob: string): MobileAnalysis
   const mulank = calculateMulank(dob);
   const bhagyank = calculateBhagyank(dob);
 
+  // Favorable if mobile total is compatible with mulank or bhagyank
   const friendlyNumbers: Record<number, number[]> = {
     1: [1, 2, 3, 9], 2: [1, 2, 3], 3: [1, 2, 3, 5], 4: [1, 5, 7],
     5: [1, 3, 5, 6], 6: [2, 5, 6, 9], 7: [1, 4, 7], 8: [3, 5, 6],
@@ -178,8 +203,16 @@ export function analyzeMobileNumber(mobile: string, dob: string): MobileAnalysis
   }
 
   return {
-    mobileNumber: mobile, total, reducedNumber, planet: info.planet,
-    traits: info.traits, isFavorable, recommendation, digitCount, missingDigits, repeatedDigits,
+    mobileNumber: mobile,
+    total,
+    reducedNumber,
+    planet: info.planet,
+    traits: info.traits,
+    isFavorable,
+    recommendation,
+    digitCount,
+    missingDigits,
+    repeatedDigits,
   };
 }
 
@@ -221,16 +254,29 @@ export function generateBabyNameSuggestions(
   for (const [name, meaning] of Object.entries(pool)) {
     const num = calculateNameNumber(name);
     if (num === targetNumber) {
-      suggestions.push({ name, meaning, numerologyValue: num, compatibilityScore: 90 + Math.floor(Math.random() * 10), gender });
+      suggestions.push({
+        name,
+        meaning,
+        numerologyValue: num,
+        compatibilityScore: 90 + Math.floor(Math.random() * 10),
+        gender,
+      });
     }
     if (suggestions.length >= count) break;
   }
 
+  // If not enough exact matches, include close numbers
   if (suggestions.length < count) {
     for (const [name, meaning] of Object.entries(pool)) {
       const num = calculateNameNumber(name);
       if (Math.abs(num - targetNumber) <= 1 && !suggestions.find(s => s.name === name)) {
-        suggestions.push({ name, meaning, numerologyValue: num, compatibilityScore: 75 + Math.floor(Math.random() * 15), gender });
+        suggestions.push({
+          name,
+          meaning,
+          numerologyValue: num,
+          compatibilityScore: 75 + Math.floor(Math.random() * 15),
+          gender,
+        });
       }
       if (suggestions.length >= count) break;
     }

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { LandingPage } from './components/LandingPage';
+import { FreeNameCheck } from './components/FreeNameCheck';
 import { PlanSelection } from './components/PlanSelection';
 import { OTPAuthentication } from './components/OTPAuthentication';
 import { CheckoutModal } from './components/CheckoutModal';
@@ -7,10 +7,10 @@ import { ReportViewer } from './components/ReportViewer';
 import { PricingPlan, Campaign } from './services/campaignService';
 import { NameAnalysisResult } from './services/numerologyService';
 
-type FlowStep = 'landing' | 'plan_selection' | 'otp_auth' | 'payment' | 'report';
+type FlowStep = 'name_check' | 'plan_selection' | 'otp_auth' | 'payment' | 'report';
 
 export default function App() {
-  const [step, setStep] = useState<FlowStep>('landing');
+  const [step, setStep] = useState<FlowStep>('name_check');
   const [name, setName] = useState('');
   const [dob, setDob] = useState('');
   const [nameAnalysis, setNameAnalysis] = useState<NameAnalysisResult | null>(null);
@@ -43,7 +43,7 @@ export default function App() {
   };
 
   const handleReportComplete = () => {
-    setStep('landing');
+    setStep('name_check');
     setName('');
     setDob('');
     setNameAnalysis(null);
@@ -52,14 +52,14 @@ export default function App() {
 
   return (
     <>
-      {step === 'landing' && (
-        <LandingPage onContinue={handleNameCheckContinue} />
+      {step === 'name_check' && (
+        <FreeNameCheck onContinue={handleNameCheckContinue} />
       )}
 
       {step === 'plan_selection' && (
         <PlanSelection
           onSelectPlan={handlePlanSelected}
-          onBack={() => setStep('landing')}
+          onBack={() => setStep('name_check')}
         />
       )}
 
