@@ -3,24 +3,16 @@ export default {
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
   theme: {
     extend: {
-      colors: {
-        navy: {
-          900: '#0a0a1a',
-          800: '#0d0d2b',
-          700: '#111133',
-          600: '#1a1a4a',
-          500: '#252560',
-        },
-        gold: {
-          400: '#f5c842',
-          500: '#e8b800',
-          600: '#c99a00',
-        },
+      animation: {
+        fadeIn: 'fadeIn 0.3s ease-in-out',
       },
-      fontFamily: {
-        sans: ['Inter', 'system-ui', 'sans-serif'],
+      keyframes: {
+        fadeIn: {
+          '0%': { opacity: '0', transform: 'translateY(-10px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
       },
     },
   },
   plugins: [],
-}
+};
