@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Sparkles, Calculator, Baby, Smartphone, Building2, Hand, MessageSquare, Star, Shield, Zap, Clock, CircleCheck as CheckCircle2, ChevronRight, Menu, X, Phone, Mail, MapPin, Facebook, Instagram } from 'lucide-react';
+import { Sparkles, Calculator, Baby, Smartphone, Building2, Hand, MessageSquare, Star, Shield, Zap, Clock, CheckCircle2, ChevronRight, Menu, X, Phone, Mail, MapPin, Facebook, Instagram } from 'lucide-react';
 import { NumerologyLogo } from './NumerologyLogo';
 import { Campaign } from '../services/campaignService';
 import { PricingPlan } from '../services/campaignService';
