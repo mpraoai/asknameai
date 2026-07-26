@@ -1,4 +1,4 @@
-import { Bolt Database } from '../lib/supabase';
+import { Database } from '../lib/supabase';
 export interface Campaign {
   id: string;
   name: string;
