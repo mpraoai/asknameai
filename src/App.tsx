@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Routes, Route } from 'react-router-dom';
 import { PersonData, NumerologyCalculation, NameAnalysis, BabyNameSuggestion } from './types/numerology';
 import { Header } from './components/Header';
 import { PersonalInfoForm } from './components/PersonalInfoForm';
@@ -11,6 +12,10 @@ import { AuthModal } from './components/AuthModal';
 import { AdminPanel } from './components/AdminPanel';
 import { CheckoutModal } from './components/CheckoutModal';
 import { NumerologyLogo } from './components/NumerologyLogo';
+import FreeCheckForm from './screens/FreeCheckForm';
+import CompatibilityReport from './screens/CompatibilityReport';
+import PlansPage from './screens/PlansPage';
+import NumerologyDashboard from './screens/NumerologyDashboard';
 import { calculateDriver, calculateConductor, calculateKua, createLoshuGrid, analyzePlanes } from './utils/numerologyCalculations';
 import { getCompatibility } from './utils/compatibility';
 import { analyzeNameSpelling, generateNameCorrectionsWithParents, generateCorrectedNamesWithCompleteFormula } from './utils/nameCorrection';
@@ -299,31 +304,41 @@ function App() {
   if (view === 'landing') {
     return (
       <>
-        <LandingPage
-          campaigns={campaigns}
-          pricingPlans={pricingPlans}
-          onSelectService={handleSelectService}
-          onSelectPlan={handleSelectPlan}
-          onOpenAuth={() => setAuthModalOpen(true)}
-          onOpenAdmin={() => setAdminPanelOpen(true)}
-        />
-        <AuthModal
-          isOpen={authModalOpen}
-          onClose={() => setAuthModalOpen(false)}
-          onAuthSuccess={handleAuthSuccess}
-        />
-        <AdminPanel
-          isOpen={adminPanelOpen}
-          onClose={() => setAdminPanelOpen(false)}
-        />
-        <CheckoutModal
-          isOpen={checkoutOpen}
-          onClose={() => setCheckoutOpen(false)}
-          plan={checkoutPlan}
-          campaigns={campaigns}
-          userEmail={user?.email}
-          userName={user ? `${user.first_name} ${user.last_name}` : undefined}
-        />
+        <Routes>
+          <Route path="/" element={
+            <>
+              <LandingPage
+                campaigns={campaigns}
+                pricingPlans={pricingPlans}
+                onSelectService={handleSelectService}
+                onSelectPlan={handleSelectPlan}
+                onOpenAuth={() => setAuthModalOpen(true)}
+                onOpenAdmin={() => setAdminPanelOpen(true)}
+              />
+              <AuthModal
+                isOpen={authModalOpen}
+                onClose={() => setAuthModalOpen(false)}
+                onAuthSuccess={handleAuthSuccess}
+              />
+              <AdminPanel
+                isOpen={adminPanelOpen}
+                onClose={() => setAdminPanelOpen(false)}
+              />
+              <CheckoutModal
+                isOpen={checkoutOpen}
+                onClose={() => setCheckoutOpen(false)}
+                plan={checkoutPlan}
+                campaigns={campaigns}
+                userEmail={user?.email}
+                userName={user ? `${user.first_name} ${user.last_name}` : undefined}
+              />
+            </>
+          } />
+          <Route path="/free-check" element={<FreeCheckForm />} />
+          <Route path="/report/:data" element={<CompatibilityReport />} />
+          <Route path="/plans/:data" element={<PlansPage />} />
+          <Route path="/numerology/:data" element={<NumerologyDashboard />} />
+        </Routes>
       </>
     );
   }
