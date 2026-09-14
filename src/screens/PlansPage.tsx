@@ -65,7 +65,7 @@ export default function PlansPage() {
   useEffect(() => {
     if (data) {
       try {
-        setResult(JSON.parse(atob(data)) as NumerologyResult)
+        setResult(JSON.parse(atob(data.replace(/-/g, '+').replace(/_/g, '/'))) as NumerologyResult)
       } catch {
         navigate('/')
       }

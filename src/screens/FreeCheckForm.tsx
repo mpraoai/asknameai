@@ -19,7 +19,7 @@ export default function FreeCheckForm() {
     }
     const input: NumerologyInput = { firstName, lastName, dob, gender }
     const result = calculateNumerology(input)
-    const encoded = btoa(JSON.stringify(result))
+    const encoded = btoa(JSON.stringify(result)).replace(/\+/g, '-').replace(/\//g, '_')
     navigate(`/report/${encoded}`)
   }
 

@@ -15,7 +15,7 @@ export default function CompatibilityReport() {
   useEffect(() => {
     if (data) {
       try {
-        const decoded = JSON.parse(atob(data)) as NumerologyResult
+        const decoded = JSON.parse(atob(data.replace(/-/g, '+').replace(/_/g, '/'))) as NumerologyResult
         setResult(decoded)
       } catch {
         navigate('/')
