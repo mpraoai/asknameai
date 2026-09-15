@@ -16,6 +16,8 @@ import FreeCheckForm from './screens/FreeCheckForm';
 import CompatibilityReport from './screens/CompatibilityReport';
 import PlansPage from './screens/PlansPage';
 import NumerologyDashboard from './screens/NumerologyDashboard';
+import NumerologistOnboarding from './screens/NumerologistOnboarding';
+import NumerologistDashboard from './screens/NumerologistDashboard';
 import { calculateDriver, calculateConductor, calculateKua, createLoshuGrid, analyzePlanes } from './utils/numerologyCalculations';
 import { getCompatibility } from './utils/compatibility';
 import { analyzeNameSpelling, generateNameCorrectionsWithParents, generateCorrectedNamesWithCompleteFormula } from './utils/nameCorrection';
@@ -338,6 +340,8 @@ function App() {
           <Route path="/report/:data" element={<CompatibilityReport />} />
           <Route path="/plans/:data" element={<PlansPage />} />
           <Route path="/numerology/:data" element={<NumerologyDashboard />} />
+          <Route path="/numerologist/onboarding" element={<NumerologistOnboarding onComplete={() => { window.location.href = '/numerologist/dashboard'; }} />} />
+          <Route path="/numerologist/dashboard" element={<NumerologistDashboard />} />
         </Routes>
       </>
     );
