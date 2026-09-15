@@ -8,6 +8,12 @@
     color: #ffffff;
     font-family: 'Inter', sans-serif;
   }
+
+  input:not(.input-field),
+  textarea:not(.input-field),
+  select:not(.input-field) {
+    color: #111827;
+  }
 }
 
 @layer components {

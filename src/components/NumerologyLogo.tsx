@@ -1,7 +1,7 @@
 import React from 'react';
 
 interface NumerologyLogoProps {
-  size?: 'sm' | 'md' | 'lg';
+  size?: 'sm' | 'md' | 'lg' | 'xl';
   variant?: 'light' | 'dark';
   showText?: boolean;
   onClick?: () => void;
@@ -17,6 +17,7 @@ export const NumerologyLogo: React.FC<NumerologyLogoProps> = ({
     sm: { box: 'w-8 h-8', text: 'text-lg', icon: 18 },
     md: { box: 'w-10 h-10', text: 'text-xl', icon: 24 },
     lg: { box: 'w-14 h-14', text: 'text-2xl', icon: 32 },
+    xl: { box: 'w-16 h-16', text: 'text-3xl', icon: 40 },
   };
 
   const d = dimensions[size];

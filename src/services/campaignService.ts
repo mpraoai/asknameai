@@ -1,4 +1,4 @@
-import { Database } from '../lib/supabase';
+import { supabase } from '../lib/supabase';
 
 export interface Campaign {
   id: string;

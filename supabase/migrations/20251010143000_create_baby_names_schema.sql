@@ -52,7 +52,7 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 -- Scripture sources reference table
 CREATE TABLE IF NOT EXISTS scripture_sources (
-  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id uuid PRIMARY KEY DEFAULT extensions.uuid_generate_v4(),
   name text NOT NULL UNIQUE,
   religion text NOT NULL,
   description text,
@@ -61,7 +61,7 @@ CREATE TABLE IF NOT EXISTS scripture_sources (
 
 -- Regional languages reference table
 CREATE TABLE IF NOT EXISTS regional_languages (
-  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id uuid PRIMARY KEY DEFAULT extensions.uuid_generate_v4(),
   name text NOT NULL UNIQUE,
   code text NOT NULL UNIQUE,
   region text NOT NULL,
@@ -74,7 +74,7 @@ CREATE TABLE IF NOT EXISTS regional_languages (
 -- ============================================================================
 
 CREATE TABLE IF NOT EXISTS baby_names (
-  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id uuid PRIMARY KEY DEFAULT extensions.uuid_generate_v4(),
   
   -- Basic Information
   name text NOT NULL,
@@ -118,7 +118,7 @@ CREATE TABLE IF NOT EXISTS baby_names (
 -- ============================================================================
 
 CREATE TABLE IF NOT EXISTS name_variations (
-  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id uuid PRIMARY KEY DEFAULT extensions.uuid_generate_v4(),
   name_id uuid REFERENCES baby_names(id) ON DELETE CASCADE,
   variation text NOT NULL,
   script text,

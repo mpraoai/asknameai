@@ -51,6 +51,7 @@ export async function verifyOTP(
     .from('otp_codes')
     .select('id, expires_at, verified')
     .eq('mobile_number', mobileNumber)
+    .eq('verified', false)
     .order('created_at', { ascending: false })
     .limit(1)
     .maybeSingle();
@@ -60,11 +61,7 @@ export async function verifyOTP(
   }
 
   if (!data) {
-    return { success: false, error: 'No OTP found. Please request a new code.' };
-  }
-
-  if (data.verified) {
-    return { success: false, error: 'This code has already been used.' };
+    return { success: false, error: 'No pending OTP found. Please request a new code.' };
   }
 
   if (new Date(data.expires_at) < new Date()) {
@@ -105,6 +102,13 @@ export async function registerUser(
   const { data: authData, error: authError } = await supabase.auth.signUp({
     email: data.email,
     password: data.mobile_number,
+    options: {
+      data: {
+        first_name: data.first_name,
+        last_name: data.last_name,
+        mobile_number: data.mobile_number,
+      },
+    },
   });
 
   if (authError) {
@@ -114,19 +118,11 @@ export async function registerUser(
     return { success: false, error: authError.message };
   }
 
-  const authUserId = authData.user?.id;
-  const { error: profileError } = await supabase.from('user_profiles').insert({
-    auth_user_id: authUserId,
-    first_name: data.first_name,
-    last_name: data.last_name,
-    mobile_number: data.mobile_number,
-    email: data.email,
-    is_admin: false,
-  });
-
-  if (profileError) {
-    return { success: false, error: profileError.message };
-  }
+  // The user_profiles row is created server-side by the on_auth_user_created
+  // trigger (see supabase/migrations/20260914130000_add_handle_new_user_trigger.sql),
+  // which reads first_name/last_name/mobile_number from raw_user_meta_data above.
+  // This avoids the RLS failure that occurs when signUp() returns without an
+  // active session (e.g. when email confirmation is required).
 
   return { success: true, user: authData.user };
 }
