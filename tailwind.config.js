@@ -3,6 +3,10 @@ export default {
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
   theme: {
     extend: {
+      fontFamily: {
+        display: ['Fraunces', 'Georgia', 'serif'],
+        data: ['"JetBrains Mono"', 'ui-monospace', 'monospace'],
+      },
       colors: {
         navy: {
           50: '#f0f4ff',

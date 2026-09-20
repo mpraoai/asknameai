@@ -32,6 +32,31 @@
   .gradient-text {
     @apply bg-gradient-to-r from-gold-400 to-gold-600 bg-clip-text text-transparent;
   }
+
+  /* Scoped to the public free-check / baby-check / report funnel pages
+     only, to match the reference site's own indigo/purple/orange palette
+     exactly, without changing the gold/navy theme used everywhere else
+     in the app (admin, numerologist dashboard, plans page, etc). */
+  .lovable-bg {
+    background: radial-gradient(ellipse 80% 50% at 50% -10%, rgba(139, 92, 246, 0.15), transparent),
+      #0d0b1f;
+  }
+
+  .lovable-hero-text {
+    @apply bg-gradient-to-r from-indigo-300 via-purple-300 to-orange-300 bg-clip-text text-transparent;
+  }
+
+  .btn-lovable-primary {
+    @apply bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-semibold rounded-full transition-all hover:shadow-lg hover:shadow-purple-500/30;
+  }
+
+  .btn-lovable-secondary {
+    @apply bg-gradient-to-r from-orange-400 to-pink-500 text-white font-semibold rounded-full transition-all hover:shadow-lg hover:shadow-pink-500/30;
+  }
+
+  .input-field-lovable {
+    @apply w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/30 focus:outline-none focus:border-purple-400/50 focus:ring-1 focus:ring-purple-400/30 transition-all;
+  }
 }
 
 @keyframes fadeIn {

@@ -77,9 +77,14 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ isOpen, onClose }) => {
             <Gift className="w-7 h-7 text-indigo-400" />
             <h2 className="text-2xl font-bold text-white">Admin Control Panel</h2>
           </div>
-          <button onClick={onClose} className="text-white/80 hover:text-white transition-colors">
-            <X className="w-6 h-6" />
-          </button>
+          <div className="flex items-center gap-4">
+            <a href="/admin/dashboard" className="text-sm font-semibold text-indigo-200 hover:text-white bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-lg transition-colors">
+              Platform Dashboard →
+            </a>
+            <button onClick={onClose} className="text-white/80 hover:text-white transition-colors">
+              <X className="w-6 h-6" />
+            </button>
+          </div>
         </div>
 
         {saveSuccess && (

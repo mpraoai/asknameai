@@ -132,14 +132,14 @@ export const NumerologyResults: React.FC<NumerologyResultsProps> = ({ person, ca
 
       {/* Core Numbers */}
       <div className="grid md:grid-cols-3 gap-6 mb-8">
-        <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-6 text-center">
-          <div className="text-3xl font-bold text-indigo-600 mb-2">{calculation.driver}</div>
-          <div className="text-sm font-semibold text-gray-700">Driver Number</div>
-          <div className="text-xs text-gray-500 mt-1">(Moolank)</div>
-        </div>
         <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl p-6 text-center">
           <div className="text-3xl font-bold text-purple-600 mb-2">{calculation.conductor}</div>
           <div className="text-sm font-semibold text-gray-700">Conductor Number</div>
+          <div className="text-xs text-gray-500 mt-1">(Moolank)</div>
+        </div>
+        <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-6 text-center">
+          <div className="text-3xl font-bold text-indigo-600 mb-2">{calculation.driver}</div>
+          <div className="text-sm font-semibold text-gray-700">Driver Number</div>
           <div className="text-xs text-gray-500 mt-1">(Bhagyank)</div>
         </div>
         <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-6 text-center">

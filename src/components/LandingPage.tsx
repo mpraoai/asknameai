@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import { PublicFreeToolsGrid } from './PublicFreeToolsGrid';
 import { Sparkles, Calculator, Baby, Smartphone, Building2, Hand, MessageSquare, Star, Shield, Zap, Clock, CheckCircle2, ChevronRight, Menu, X, Phone, Mail, MapPin, Facebook, Instagram } from 'lucide-react';
 import { NumerologyLogo } from './NumerologyLogo';
 import { Campaign } from '../services/campaignService';
@@ -189,6 +191,14 @@ export const LandingPage: React.FC<LandingPageProps> = ({
               </button>
             </div>
 
+            <p className="text-indigo-200 text-sm mb-3">No signup · Instant result · 100% private</p>
+            <div className="flex flex-wrap gap-3 justify-center mb-12 text-sm">
+              <Link to="/free-check" className="text-white/80 hover:text-white underline underline-offset-4">Try the free check now →</Link>
+              <Link to="/baby-check" className="text-white/80 hover:text-white underline underline-offset-4">Free baby name suggestions →</Link>
+              <Link to="/business-check" className="text-white/80 hover:text-white underline underline-offset-4">Business name numerology →</Link>
+              <Link to="/domain-check" className="text-white/80 hover:text-white underline underline-offset-4">Domain name numerology →</Link>
+            </div>
+
             {/* Trust Indicators */}
             <div className="grid grid-cols-3 gap-8 max-w-2xl mx-auto">
               <div className="text-center">
@@ -207,6 +217,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({
           </div>
         </div>
       </section>
+
+      <PublicFreeToolsGrid />
 
       {/* Services Section */}
       <section id="services" className="py-20 bg-gradient-to-b from-purple-50 to-white">

@@ -466,6 +466,8 @@ Deno.serve(async (req: Request) => {
       );
     }
 
+    const modelName = Deno.env.get("AI_MODEL_NAME") || "gpt-4o-mini";
+
     const generateBatch = async (count: number, temp: number): Promise<GeneratedName[]> => {
       const prompt = buildNumerologyPrompt(requestBody, count);
 
@@ -476,7 +478,7 @@ Deno.serve(async (req: Request) => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          model: "gpt-4o-mini",
+          model: modelName,
           messages: [
             {
               role: "system",
@@ -487,8 +489,7 @@ Deno.serve(async (req: Request) => {
               content: prompt,
             },
           ],
-          temperature: temp,
-          max_tokens: 3500,
+          max_completion_tokens: 3500,
         }),
       });
 

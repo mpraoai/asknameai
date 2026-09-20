@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Sparkles, Loader2 } from 'lucide-react';
 import { registerUser, sendOTP, verifyOTP, getCurrentProfile, UserProfile } from '../services/authService';
 import { becomeNumerologist } from '../services/numerologistService';
+import { supabase } from '../lib/supabase';
 
 type Step = 'mobile' | 'otp' | 'details' | 'business' | 'done';
 
@@ -20,13 +21,27 @@ export default function NumerologistOnboarding({ onComplete }: Props) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [isNewUser, setIsNewUser] = useState(true);
+  const [devOTP, setDevOTP] = useState('');
 
   const handleSendOtp = async () => {
     setError('');
     setLoading(true);
     const result = await sendOTP(mobile);
+    if (!result.success) {
+      setLoading(false);
+      return setError(result.error || 'Could not send OTP');
+    }
+
+    const { data } = await supabase
+      .from('otp_codes')
+      .select('code')
+      .eq('mobile_number', mobile)
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    if (data) setDevOTP(data.code);
+
     setLoading(false);
-    if (!result.success) return setError(result.error || 'Could not send OTP');
     setStep('otp');
   };
 
@@ -118,6 +133,13 @@ export default function NumerologistOnboarding({ onComplete }: Props) {
 
       {step === 'otp' && (
         <div className="space-y-4">
+          {devOTP && (
+            <div className="text-center">
+              <p className="text-xs text-amber-600 bg-amber-50 inline-block px-3 py-1 rounded-full">
+                Dev mode OTP: <span className="font-bold">{devOTP}</span>
+              </p>
+            </div>
+          )}
           <input
             type="text"
             placeholder="Enter 6-digit code"

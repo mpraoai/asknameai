@@ -5,25 +5,34 @@ import { User, Calendar, Users } from 'lucide-react';
 interface PersonalInfoFormProps {
   onSubmit: (data: PersonData) => void;
   analysisType: 'numerology' | 'babynames';
+  initialData?: Partial<PersonData>;
 }
 
-export const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({ onSubmit, analysisType }) => {
+export const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({ onSubmit, analysisType, initialData }) => {
   const [formData, setFormData] = useState<PersonData>({
     name: '',
     surname: '',
     dateOfBirth: '',
     gender: 'male',
-    religion: 'hindu'
+    religion: 'hindu',
+    ...initialData,
   });
+  const [consent, setConsent] = useState(false);
+  const [consentError, setConsentError] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     // For numerology analysis, names are required
     // For baby names, only date of birth and gender are required
-    const isValid = analysisType === 'numerology' 
+    const isValid = analysisType === 'numerology'
       ? (formData.name && formData.surname && formData.dateOfBirth)
       : formData.dateOfBirth;
-      
+
+    if (!consent) {
+      setConsentError(true);
+      return;
+    }
+
     if (isValid) {
       onSubmit(formData);
     }
@@ -205,6 +214,24 @@ export const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({ onSubmit, an
             </div>
           </div>
         )}
+
+        <label className="flex items-start gap-2.5 text-xs text-gray-500 cursor-pointer">
+          <input
+            type="checkbox"
+            checked={consent}
+            onChange={(e) => { setConsent(e.target.checked); if (e.target.checked) setConsentError(false); }}
+            className="mt-0.5 w-4 h-4 rounded border-gray-300 accent-indigo-600 flex-shrink-0"
+          />
+          <span>
+            I agree to the{' '}
+            <a href="/privacy-policy" target="_blank" rel="noreferrer" className="text-indigo-600 hover:underline">
+              Privacy Policy
+            </a>
+            {' '}and consent to this information being used to calculate my numerology reading.
+          </span>
+        </label>
+        {consentError && <p className="text-red-500 text-sm -mt-3">Please agree to the Privacy Policy to continue</p>}
+
         <button
           type="submit"
           className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-semibold py-4 px-6 rounded-lg transition-all transform hover:scale-105 shadow-lg"

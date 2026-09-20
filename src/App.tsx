@@ -7,7 +7,8 @@ import { NumerologyResults } from './components/NumerologyResults';
 import { NameAnalysis as NameAnalysisComponent } from './components/NameAnalysis';
 import { BabyNameSuggestions } from './components/BabyNameSuggestions';
 import { AINameGenerator } from './components/AINameGenerator';
-import { LandingPage } from './components/LandingPage';
+import { AINameGeneratorV2 } from './components/AINameGeneratorV2';
+import { HomePage } from './components/HomePage';
 import { AuthModal } from './components/AuthModal';
 import { AdminPanel } from './components/AdminPanel';
 import { CheckoutModal } from './components/CheckoutModal';
@@ -18,6 +19,13 @@ import PlansPage from './screens/PlansPage';
 import NumerologyDashboard from './screens/NumerologyDashboard';
 import NumerologistOnboarding from './screens/NumerologistOnboarding';
 import NumerologistDashboard from './screens/NumerologistDashboard';
+import BookingPage from './screens/BookingPage';
+import AdminDashboard from './screens/AdminDashboard';
+import PrivacyPolicy from './screens/PrivacyPolicy';
+import CustomerDashboard from './screens/CustomerDashboard';
+import PublicNumerologyToolPage from './screens/PublicNumerologyToolPage';
+import PublicBabyCheckForm from './screens/PublicBabyCheckForm';
+import PublicNumerologyChart from './screens/PublicNumerologyChart';
 import { calculateDriver, calculateConductor, calculateKua, createLoshuGrid, analyzePlanes } from './utils/numerologyCalculations';
 import { getCompatibility } from './utils/compatibility';
 import { analyzeNameSpelling, generateNameCorrectionsWithParents, generateCorrectedNamesWithCompleteFormula } from './utils/nameCorrection';
@@ -309,11 +317,7 @@ function App() {
         <Routes>
           <Route path="/" element={
             <>
-              <LandingPage
-                campaigns={campaigns}
-                pricingPlans={pricingPlans}
-                onSelectService={handleSelectService}
-                onSelectPlan={handleSelectPlan}
+              <HomePage
                 onOpenAuth={() => setAuthModalOpen(true)}
                 onOpenAdmin={() => setAdminPanelOpen(true)}
               />
@@ -342,6 +346,15 @@ function App() {
           <Route path="/numerology/:data" element={<NumerologyDashboard />} />
           <Route path="/numerologist/onboarding" element={<NumerologistOnboarding onComplete={() => { window.location.href = '/numerologist/dashboard'; }} />} />
           <Route path="/numerologist/dashboard" element={<NumerologistDashboard />} />
+          <Route path="/book/:numerologistId" element={<BookingPage />} />
+          <Route path="/admin/dashboard" element={<AdminDashboard />} />
+          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+          <Route path="/dashboard" element={<CustomerDashboard />} />
+          <Route path="/business-check" element={<PublicNumerologyToolPage />} />
+          <Route path="/domain-check" element={<PublicNumerologyToolPage />} />
+          <Route path="/mobile-check" element={<PublicNumerologyToolPage />} />
+          <Route path="/baby-check" element={<PublicBabyCheckForm />} />
+          <Route path="/numerology-chart" element={<PublicNumerologyChart />} />
         </Routes>
       </>
     );
@@ -504,6 +517,46 @@ function App() {
                       providedLastName={personData.surname}
                     />
                     <AINameGenerator
+                      gender="female"
+                      religion={personData.religion || 'hindu'}
+                      driver={numerologyResult.driver}
+                      conductor={numerologyResult.conductor}
+                      targetNumbers={
+                        Object.values(numerologyResult.loshuGrid)
+                          .flat()
+                          .filter((num, idx, arr) => arr.indexOf(num) === idx && num > 0)
+                          .filter(num => ![numerologyResult.loshuGrid.flat()[0]].includes(num))
+                          .slice(0, 4)
+                      }
+                      loshuGrid={numerologyResult.loshuGrid}
+                      providedLastName={personData.surname}
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-8">
+                  <div className="text-center">
+                    <h2 className="text-3xl font-bold text-gray-800 mb-2">⚡ Fast Engine (Beta)</h2>
+                    <p className="text-gray-600">A new streaming name engine for comparison against the results above</p>
+                  </div>
+
+                  <div className="grid lg:grid-cols-2 gap-8">
+                    <AINameGeneratorV2
+                      gender="male"
+                      religion={personData.religion || 'hindu'}
+                      driver={numerologyResult.driver}
+                      conductor={numerologyResult.conductor}
+                      targetNumbers={
+                        Object.values(numerologyResult.loshuGrid)
+                          .flat()
+                          .filter((num, idx, arr) => arr.indexOf(num) === idx && num > 0)
+                          .filter(num => ![numerologyResult.loshuGrid.flat()[0]].includes(num))
+                          .slice(0, 4)
+                      }
+                      loshuGrid={numerologyResult.loshuGrid}
+                      providedLastName={personData.surname}
+                    />
+                    <AINameGeneratorV2
                       gender="female"
                       religion={personData.religion || 'hindu'}
                       driver={numerologyResult.driver}
