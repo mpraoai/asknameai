@@ -51,6 +51,22 @@ Deno.serve(async (req: Request) => {
       );
     }
 
+    // This endpoint is callable by anyone, so only score each lead once, and
+    // only right after capture. Missing created_at counts as too old.
+    const ageMs = lead.created_at ? Date.now() - new Date(lead.created_at).getTime() : Infinity;
+    const skipReason = (lead.score_numeric ?? 0) > 0
+      ? "Lead already has an AI score"
+      : ageMs > 10 * 60 * 1000
+        ? "Lead was created more than 10 minutes ago"
+        : null;
+
+    if (skipReason) {
+      return new Response(
+        JSON.stringify({ skipped: true, reason: skipReason }),
+        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
     // Build a short, factual description of the lead for the model —
     // no invented details, only what was actually captured.
     const signals = [
