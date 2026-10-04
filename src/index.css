@@ -9,9 +9,11 @@
     font-family: 'Inter', sans-serif;
   }
 
-  input:not(.input-field),
-  textarea:not(.input-field),
-  select:not(.input-field) {
+  /* Default for unstyled controls on light surfaces (modals, forms). Plain
+     element selectors so any text-* utility or input-field* class wins. */
+  input,
+  textarea,
+  select {
     color: #111827;
   }
 }
@@ -27,6 +29,7 @@
 
   .input-field {
     @apply w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/30 focus:outline-none focus:border-gold-400/50 focus:ring-1 focus:ring-gold-400/30 transition-all;
+    color-scheme: dark;
   }
 
   .gradient-text {
@@ -56,6 +59,7 @@
 
   .input-field-lovable {
     @apply w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/30 focus:outline-none focus:border-purple-400/50 focus:ring-1 focus:ring-purple-400/30 transition-all;
+    color-scheme: dark;
   }
 }
 

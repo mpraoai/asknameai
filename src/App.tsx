@@ -18,6 +18,8 @@ import CompatibilityReport from './screens/CompatibilityReport';
 import PlansPage from './screens/PlansPage';
 import NumerologyDashboard from './screens/NumerologyDashboard';
 import NumerologistOnboarding from './screens/NumerologistOnboarding';
+import NumerologistLogin from './screens/NumerologistLogin';
+import AdminLogin from './screens/AdminLogin';
 import NumerologistDashboard from './screens/NumerologistDashboard';
 import BookingPage from './screens/BookingPage';
 import AdminDashboard from './screens/AdminDashboard';
@@ -345,8 +347,10 @@ function App() {
           <Route path="/plans/:data" element={<PlansPage />} />
           <Route path="/numerology/:data" element={<NumerologyDashboard />} />
           <Route path="/numerologist/onboarding" element={<NumerologistOnboarding onComplete={() => { window.location.href = '/numerologist/dashboard'; }} />} />
+          <Route path="/numerologist/login" element={<NumerologistLogin />} />
           <Route path="/numerologist/dashboard" element={<NumerologistDashboard />} />
           <Route path="/book/:numerologistId" element={<BookingPage />} />
+          <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
           <Route path="/dashboard" element={<CustomerDashboard />} />

@@ -7,7 +7,7 @@ import {
 import { NumerologyResult, NUMBER_MEANINGS, generateNameSuggestions } from '../lib/numerology'
 import { getLetterBreakdown, getAnalysisSteps, PLANET_RULERS } from '../lib/nameAnalysisDisplay'
 import { PLANS } from '../lib/plans'
-import { captureLead } from '../services/numerologistService'
+import { captureLeadAndTriage } from '../services/leadAutomationService'
 import { scoreLead } from '../services/newAgents/leadScoringAgent'
 import { explainNumerologyReport } from '../services/newAgents/aiAssistantService'
 
@@ -42,7 +42,7 @@ export default function CompatibilityReport() {
     }
     setLeadError('')
     setLeadSubmitting(true)
-    const res = await captureLead({
+    const res = await captureLeadAndTriage({
       first_name: result?.firstName,
       last_name: result?.lastName,
       mobile_number: leadMobile.trim() || undefined,

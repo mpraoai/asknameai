@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Sparkles, Loader2 } from 'lucide-react';
 import { registerUser, sendOTP, verifyOTP, getCurrentProfile, UserProfile } from '../services/authService';
 import { becomeNumerologist } from '../services/numerologistService';
@@ -19,7 +20,6 @@ export default function NumerologistOnboarding({ onComplete }: Props) {
   const [businessName, setBusinessName] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [isNewUser, setIsNewUser] = useState(true);
 
   const handleSendOtp = async () => {
     setError('');
@@ -36,7 +36,7 @@ export default function NumerologistOnboarding({ onComplete }: Props) {
     const result = await verifyOTP(mobile, otp);
     setLoading(false);
     if (!result.success) return setError(result.error || 'Invalid code');
-    setStep(isNewUser ? 'details' : 'business');
+    setStep('details');
   };
 
   const handleRegisterDetails = async () => {
@@ -85,18 +85,11 @@ export default function NumerologistOnboarding({ onComplete }: Props) {
       {step === 'mobile' && (
         <div className="space-y-4">
           <div className="flex gap-4 text-sm justify-center mb-2">
-            <button
-              onClick={() => setIsNewUser(true)}
-              className={`px-3 py-1 rounded-full ${isNewUser ? 'bg-indigo-600 text-white' : 'bg-gray-100 text-gray-600'}`}
-            >
-              New here
-            </button>
-            <button
-              onClick={() => setIsNewUser(false)}
-              className={`px-3 py-1 rounded-full ${!isNewUser ? 'bg-indigo-600 text-white' : 'bg-gray-100 text-gray-600'}`}
-            >
+            <span className="px-3 py-1 rounded-full bg-indigo-600 text-white">New here</span>
+            {/* Existing numerologists need a real session, which only /numerologist/login creates. */}
+            <Link to="/numerologist/login" className="px-3 py-1 rounded-full bg-gray-100 text-gray-600 hover:bg-gray-200">
               Already registered
-            </button>
+            </Link>
           </div>
           <input
             type="tel"
